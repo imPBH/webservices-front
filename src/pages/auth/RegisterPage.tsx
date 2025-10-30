@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router";
+import { Link, Navigate } from "react-router";
 import { useRegister } from "../../api/auth/auth";
 import { Container } from "../../components/ui/Container";
 
@@ -29,6 +29,10 @@ export default function RegisterPage() {
     password === passwordConfirmation &&
     password.length >= 8
   );
+
+  if (register.isSuccess) {
+    return <Navigate replace to="/login" state={{ registered: true }} />;
+  }
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100">

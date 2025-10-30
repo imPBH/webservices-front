@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, Navigate } from "react-router";
+import { Link, Navigate, useLocation } from "react-router";
 import { useLogin } from "../../api/auth/auth";
 import { Container } from "../../components/ui/Container";
 
@@ -8,6 +8,9 @@ export default function LoginPage() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  const location = useLocation();
+  const registered = location.state?.registered === true;
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -30,6 +33,11 @@ export default function LoginPage() {
       <Container className="py-16">
         <div className="mx-auto w-full max-w-md rounded-2xl border border-white/10 bg-white/5 p-6">
           <h1 className="text-2xl font-bold">Connexion</h1>
+          {registered && (
+            <p className="mb-4 rounded-md border border-emerald-500/30 bg-emerald-500/10 p-2 text-sm text-emerald-300">
+              Compte créé avec succès. Vous pouvez maintenant vous connecter.
+            </p>
+          )}
           <form onSubmit={onSubmit} className="mt-6 space-y-4">
             <div>
               <label className="text-sm text-slate-300">Email</label>
