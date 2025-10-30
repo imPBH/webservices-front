@@ -7,7 +7,12 @@ export function UseCases() {
   return (
     <section id="cases" className="py-16">
       <Container>
-        <div className="grid gap-4 lg:grid-cols-3">
+        <div className="mx-auto max-w-2xl text-center">
+          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+            Les différents cas d'usages
+          </h2>
+        </div>
+        <div className="mt-10 grid gap-4 lg:grid-cols-3">
           {USE_CASES.map((c, i) => (
             <motion.div
               key={c.id}

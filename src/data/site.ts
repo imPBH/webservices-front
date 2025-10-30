@@ -80,6 +80,7 @@ export const USE_CASES: UseCase[] = [
     desc: "Réception, tri et affectation des incidents avec ETA et communication.",
   },
 ];
+
 export const FAQ: FAQItem[] = [
   {
     q: "Comment intégrez-vous les capteurs parking ?",

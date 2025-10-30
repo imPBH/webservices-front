@@ -1,4 +1,4 @@
-import { Building2, ArrowRight } from "lucide-react";
+import { Building2 } from "lucide-react";
 import { Container } from "../ui/Container";
 import { NAV_LINKS } from "../../data/site";
 
@@ -25,13 +25,6 @@ export function Header() {
             </a>
           ))}
         </nav>
-        <a
-          href="#cta"
-          className="group inline-flex items-center gap-2 rounded-lg bg-cyan-400 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-cyan-500"
-        >
-          Demander une démo
-          <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
-        </a>
       </Container>
     </header>
   );

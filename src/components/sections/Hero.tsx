@@ -31,12 +31,6 @@ export function Hero() {
             </p>
             <div className="flex flex-wrap gap-3">
               <a
-                href="#cta"
-                className="inline-flex items-center justify-center rounded-xl bg-cyan-400 px-5 py-3 text-sm font-semibold text-slate-950 shadow-lg shadow-cyan-500/20 transition hover:bg-cyan-500"
-              >
-                Lancer la démo
-              </a>
-              <a
                 href="#features"
                 className="inline-flex items-center justify-center rounded-xl border border-white/10 px-5 py-3 text-sm font-semibold text-white/90 hover:bg-white/5"
               >
