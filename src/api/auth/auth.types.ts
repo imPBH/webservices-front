@@ -53,3 +53,7 @@ export type UpdateResponse = MessageResponse & {
 export type DeleteResponse = MessageResponse;
 
 export type ResetPasswordResponse = MessageResponse;
+
+export type ApiError = {
+  errors: Array<{ message: string }>;
+};

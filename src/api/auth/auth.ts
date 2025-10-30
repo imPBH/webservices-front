@@ -1,6 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { jsonApi } from "../jsonApi";
 import type {
+  ApiError,
   DeleteResponse,
   LoginPayload,
   LoginResponse,
@@ -14,7 +15,7 @@ import type {
 } from "./auth.types";
 import { useStore } from "../../store/store";
 
-const AUTH_SERVICE_URL: string = import.meta.env.AUTH_SERVICE_URL;
+const AUTH_SERVICE_URL: string = import.meta.env.VITE_AUTH_SERVICE_URL;
 const authEndpoint = AUTH_SERVICE_URL + "/auth";
 
 export function register(payload: RegisterPayload): Promise<RegisterResponse> {
@@ -22,7 +23,7 @@ export function register(payload: RegisterPayload): Promise<RegisterResponse> {
 }
 
 export function useRegister() {
-  return useMutation({
+  return useMutation<RegisterResponse, ApiError, RegisterPayload>({
     mutationFn: (payload: RegisterPayload) => register(payload),
   });
 }
@@ -38,7 +39,7 @@ export function useLogin() {
   const setUsername = useStore((state) => state.setUsername);
   const setEmail = useStore((state) => state.setEmail);
   const setRole = useStore((state) => state.setRole);
-  return useMutation({
+  return useMutation<LoginResponse, ApiError, LoginPayload>({
     mutationFn: (payload: LoginPayload) => login(payload),
     onSuccess(data) {
       setLoggedIn(true);

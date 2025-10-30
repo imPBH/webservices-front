@@ -1,8 +1,13 @@
 import { Building2 } from "lucide-react";
 import { Container } from "../ui/Container";
 import { NAV_LINKS } from "../../data/site";
+import { useStore } from "../../store/store";
+import { useLogout } from "../../api/auth/auth";
 
 export function Header() {
+  const loggedIn = useStore((s) => s.isLoggedIn);
+  const logout = useLogout();
+
   return (
     <header className="sticky top-0 z-40 border-b border-white/5 bg-slate-950/60 backdrop-blur">
       <Container className="flex h-16 items-center justify-between">
@@ -24,6 +29,29 @@ export function Header() {
               {l.label}
             </a>
           ))}
+          {!loggedIn ? (
+            <>
+              <a
+                href="/login"
+                className="text-sm text-slate-300 hover:text-white"
+              >
+                Se connecter
+              </a>
+              <a
+                href="/register"
+                className="text-sm text-slate-300 hover:text-white"
+              >
+                Créer un compte
+              </a>
+            </>
+          ) : (
+            <button
+              onClick={() => logout.mutate()}
+              className="text-sm text-slate-300 hover:text-white"
+            >
+              Se déconnecter
+            </button>
+          )}
         </nav>
       </Container>
     </header>

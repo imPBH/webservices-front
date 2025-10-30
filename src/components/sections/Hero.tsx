@@ -29,7 +29,7 @@ export function Hero() {
               services nutrition/recettes intégrés. Données fiables, décisions
               rapides, impact mesurable.
             </p>
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap gap-3 mt-10 mb-10">
               <a
                 href="#features"
                 className="inline-flex items-center justify-center rounded-xl border border-white/10 px-5 py-3 text-sm font-semibold text-white/90 hover:bg-white/5"
