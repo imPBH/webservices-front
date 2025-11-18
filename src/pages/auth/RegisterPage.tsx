@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, Navigate } from "react-router";
-import { useRegister } from "../../api/auth/auth";
+import { getGoogleRedirect, useRegister } from "../../api/auth/auth";
 import { Container } from "../../components/ui/Container";
 
 export default function RegisterPage() {
@@ -19,6 +19,15 @@ export default function RegisterPage() {
       password,
       password_confirmation: passwordConfirmation,
     });
+  }
+
+  async function onGoogleLogin() {
+    try {
+      const { url } = await getGoogleRedirect();
+      window.location.href = url;
+    } catch (error) {
+      console.error("Erreur lors de la redirection Google :", error);
+    }
   }
 
   const pending = register.isPending || false;
@@ -91,7 +100,6 @@ export default function RegisterPage() {
                   {errorMsg.message}
                 </p>
               ))}
-
             {name && name.length < 4 && (
               <p className="rounded-md border border-red-500/30 bg-red-500/10 p-2 text-sm text-red-300 mt-5 mb-5">
                 The username field must have at least 4 characters
@@ -111,9 +119,17 @@ export default function RegisterPage() {
             <button
               type="submit"
               disabled={isFormComplete || pending}
-              className="inline-flex w-full items-center justify-center rounded-lg bg-cyan-400 px-4 py-2 font-semibold text-slate-950 hover:bg-cyan-500 disabled:opacity-60 mt-5 mb-5"
+              className="inline-flex cursor-pointer w-full items-center justify-center rounded-lg bg-cyan-400 px-4 py-2 font-semibold text-slate-950 hover:bg-cyan-500 disabled:opacity-60 mt-5 mb-5"
             >
               {pending ? "Création du compte…" : "S'inscrire"}
+            </button>
+            <p className="text-center">OU</p>
+            <button
+              type="button"
+              onClick={onGoogleLogin}
+              className="mt-5 mb-3 cursor-pointer w-full rounded-lg border border-slate-700 bg-slate-900 px-4 py-2 text-sm font-medium text-slate-100 hover:bg-slate-800"
+            >
+              Continuer avec Google
             </button>
             <p className="text-center text-sm text-slate-400">
               Déjà inscrit ?{" "}

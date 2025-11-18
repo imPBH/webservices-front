@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, Navigate, useLocation } from "react-router";
-import { useLogin } from "../../api/auth/auth";
+import { getGoogleRedirect, useLogin } from "../../api/auth/auth";
 import { Container } from "../../components/ui/Container";
 
 export default function LoginPage() {
@@ -18,6 +18,15 @@ export default function LoginPage() {
       email,
       password,
     });
+  }
+
+  async function onGoogleLogin() {
+    try {
+      const { url } = await getGoogleRedirect();
+      window.location.href = url;
+    } catch (error) {
+      console.error("Erreur lors de la redirection Google :", error);
+    }
   }
 
   if (login.isSuccess) {
@@ -69,7 +78,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={pending}
-              className="inline-flex w-full items-center justify-center rounded-lg bg-cyan-400 px-4 py-2 font-semibold text-slate-950 hover:bg-cyan-500 disabled:opacity-60 mt-5 mb-5"
+              className="inline-flex w-full cursor-pointer items-center justify-center rounded-lg bg-cyan-400 px-4 py-2 font-semibold text-slate-950 hover:bg-cyan-500 disabled:opacity-60 mt-5 mb-5"
             >
               {pending ? "Connexion…" : "Se connecter"}
             </button>
@@ -78,6 +87,13 @@ export default function LoginPage() {
               <Link to="/register" className="text-cyan-400 hover:underline">
                 Créer un compte
               </Link>
+              <button
+                type="button"
+                onClick={onGoogleLogin}
+                className="mt-3 w-full cursor-pointer rounded-lg border border-slate-700 bg-slate-900 px-4 py-2 text-sm font-medium text-slate-100 hover:bg-slate-800"
+              >
+                Continuer avec Google
+              </button>
             </p>
           </form>
         </div>

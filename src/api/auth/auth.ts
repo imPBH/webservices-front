@@ -156,3 +156,9 @@ export function useResetPassword() {
     mutationFn: (email: string) => resetPassword(email),
   });
 }
+
+export function getGoogleRedirect(): Promise<{ url: string }> {
+  return jsonApi.get({
+    url: `${authEndpoint}/google/redirect`,
+  });
+}
