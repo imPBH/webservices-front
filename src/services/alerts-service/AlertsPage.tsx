@@ -1,5 +1,5 @@
-import { Footer } from "../components/layout/Footer";
-import { HeaderService } from "../components/layout/HeaderService";
+import { Footer } from "../../components/layout/Footer";
+import { HeaderService } from "../../components/layout/HeaderService";
 
 export default function AlertsPage() {
     return(

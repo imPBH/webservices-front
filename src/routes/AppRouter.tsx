@@ -2,7 +2,7 @@ import { BrowserRouter, Route, Routes } from "react-router";
 import LoginPage from "../pages/auth/LoginPage";
 import RegisterPage from "../pages/auth/RegisterPage";
 import LandingPage from "../pages/LandingPage";
-import AlertsPage from "../pages/AlertsPage";
+import AlertsPage from "../services/alerts-service/AlertsPage";
 
 export function AppRouter() {
   return (
