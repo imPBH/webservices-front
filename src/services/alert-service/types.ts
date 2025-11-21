@@ -50,7 +50,7 @@ export interface ParticipationInput {
 }
 
 // Alerte principale
-export interface Alerte {
+export interface Alert {
   id: number;
   userId: number;
   titre: string;
@@ -67,7 +67,7 @@ export interface Alerte {
 }
 
 // Alerte principale
-export interface AlerteInput {
+export interface AlertInput {
   userId: number;
   titre: string;
   description: string;
@@ -81,7 +81,7 @@ export interface AlerteInput {
 }
 
 // Type pour créer une alerte
-export type CreateAlertInput = Omit<Alerte, 'id' | 'dateCreation' | 'categorie' | 'medias' | 'participations'>;
+export type CreateAlertInput = Omit<Alert, 'id' | 'dateCreation' | 'categorie' | 'medias' | 'participations'>;
 
 // Type pour mettre à jour une alerte
-export type UpdateAlertInput = Partial<Omit<Alerte, 'id' | 'categorie' | 'medias' | 'participations'>>;
+export type UpdateAlertInput = Partial<Omit<Alert, 'id' | 'categorie' | 'medias' | 'participations'>>;
