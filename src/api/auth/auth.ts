@@ -119,9 +119,16 @@ export function update({
 
 export function useUpdateUser() {
   const accessToken = useStore((state) => state.accessToken);
+  const setUsername = useStore((state) => state.setUsername);
+  const setEmail = useStore((state) => state.setEmail);
+
   return useMutation({
     mutationFn: (userData: UpdateData) =>
       update({ bearerToken: accessToken, userData }),
+    onSuccess(data) {
+      setUsername(data.user.username);
+      setEmail(data.user.email);
+    },
   });
 }
 
