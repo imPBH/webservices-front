@@ -32,7 +32,9 @@ export default function ParkingPage() {
   const updateMutation = useUpdateParking();
   const deleteMutation = useDeleteParking();
 
-  const currentParking = currentParkingData?.parking;
+  const currentParking = currentParkingData?.data.parking;
+
+  console.log(currentParking);
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -104,6 +106,35 @@ export default function ParkingPage() {
   const cancelEditing = () => {
     setIsEditing(false);
     setFormData({ latitude: "", longitude: "", address: "", note: "" });
+  };
+
+  const handleAddPosition = () => {
+    setIsCreating(true);
+
+    if (!navigator.geolocation) {
+      console.error("La géolocalisation n'est pas supportée par ce navigateur");
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const { latitude, longitude } = pos.coords;
+        setFormData((prev) => ({
+          ...prev,
+          latitude: latitude.toString(),
+          longitude: longitude.toString(),
+        }));
+        toast.success("Position GPS récupérée !");
+      },
+      (err) => {
+        console.error(err);
+        toast.error("Impossible de récupérer votre position");
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 5000,
+      }
+    );
   };
 
   if (isLoading) {
@@ -204,7 +235,10 @@ export default function ParkingPage() {
                           type="text"
                           value={formData.address}
                           onChange={(e) =>
-                            setFormData({ ...formData, address: e.target.value })
+                            setFormData({
+                              ...formData,
+                              address: e.target.value,
+                            })
                           }
                           className="w-full px-4 py-2 rounded-lg bg-slate-900/50 border border-white/10 text-slate-100 placeholder-slate-500 focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
                         />
@@ -229,7 +263,9 @@ export default function ParkingPage() {
                           className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-cyan-400 to-sky-500 text-slate-950 font-semibold rounded-lg hover:shadow-lg hover:shadow-cyan-500/30 transition-all disabled:opacity-50"
                         >
                           <Save className="w-4 h-4" />
-                          {updateMutation.isPending ? "Sauvegarde..." : "Sauvegarder"}
+                          {updateMutation.isPending
+                            ? "Sauvegarde..."
+                            : "Sauvegarder"}
                         </button>
                         <button
                           type="button"
@@ -245,22 +281,27 @@ export default function ParkingPage() {
                     <>
                       <div className="space-y-2 bg-slate-900/30 rounded-lg p-4 border border-white/5">
                         <p className="text-sm text-slate-300">
-                          <strong className="text-cyan-400">ID:</strong> {currentParking.id}
+                          <strong className="text-cyan-400">ID:</strong>{" "}
+                          {currentParking.id}
                         </p>
                         <p className="text-sm text-slate-300">
-                          <strong className="text-cyan-400">Latitude:</strong> {currentParking.latitude}
+                          <strong className="text-cyan-400">Latitude:</strong>{" "}
+                          {currentParking.latitude}
                         </p>
                         <p className="text-sm text-slate-300">
-                          <strong className="text-cyan-400">Longitude:</strong> {currentParking.longitude}
+                          <strong className="text-cyan-400">Longitude:</strong>{" "}
+                          {currentParking.longitude}
                         </p>
                         {currentParking.address && (
                           <p className="text-sm text-slate-300">
-                            <strong className="text-cyan-400">Adresse:</strong> {currentParking.address}
+                            <strong className="text-cyan-400">Adresse:</strong>{" "}
+                            {currentParking.address}
                           </p>
                         )}
                         {currentParking.note && (
                           <p className="text-sm text-slate-300">
-                            <strong className="text-cyan-400">Note:</strong> {currentParking.note}
+                            <strong className="text-cyan-400">Note:</strong>{" "}
+                            {currentParking.note}
                           </p>
                         )}
                         <p className="text-sm text-slate-400">
@@ -283,7 +324,9 @@ export default function ParkingPage() {
                           className="flex items-center gap-2 px-4 py-2 bg-red-500/80 text-white rounded-lg hover:bg-red-500 transition-all disabled:opacity-50"
                         >
                           <Trash2 className="w-4 h-4" />
-                          {deleteMutation.isPending ? "Suppression..." : "Supprimer"}
+                          {deleteMutation.isPending
+                            ? "Suppression..."
+                            : "Supprimer"}
                         </button>
                       </div>
                     </>
@@ -292,7 +335,9 @@ export default function ParkingPage() {
               ) : (
                 <div className="text-center py-12 bg-slate-900/30 rounded-lg border border-white/5">
                   <MapPin className="w-16 h-16 mx-auto mb-4 text-slate-600" />
-                  <p className="text-slate-400 font-medium">Aucune position enregistrée</p>
+                  <p className="text-slate-400 font-medium">
+                    Aucune position enregistrée
+                  </p>
                   <p className="text-sm text-slate-500 mt-1">
                     Créez votre première position de parking
                   </p>
@@ -314,7 +359,8 @@ export default function ParkingPage() {
 
               {!isCreating ? (
                 <button
-                  onClick={() => setIsCreating(true)}
+                  onClick={handleAddPosition}
+                  // onClick={() => setIsCreating(true)}
                   className="w-full px-6 py-4 bg-gradient-to-br from-cyan-400 to-sky-500 text-slate-950 font-semibold rounded-xl hover:shadow-lg hover:shadow-cyan-500/30 transition-all flex items-center justify-center gap-2"
                 >
                   <Plus className="w-5 h-5" />

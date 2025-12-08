@@ -21,12 +21,16 @@ export interface UpdateParkingRequest {
 }
 
 export interface ParkingResponse {
-  message: string;
-  parking: Parking;
+  data: {
+    message: string;
+    parking: Parking;
+  };
 }
 
 export interface CurrentParkingResponse {
-  parking: Parking;
+  data: {
+    parking: Parking;
+  };
 }
 
 export interface ParkingHistoryResponse {

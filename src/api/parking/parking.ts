@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { jsonApi } from "../jsonApi";
 import type {
   ParkingRequest,
@@ -13,6 +13,7 @@ import type {
   StartTimerResponse,
 } from "./parking.types";
 import { useStore } from "../../store/store";
+import { queryClient } from "../client";
 
 const AUTH_SERVICE_URL: string = import.meta.env.VITE_AUTH_SERVICE_URL;
 
@@ -32,14 +33,14 @@ export function createParking({
 
 export function useCreateParking() {
   const accessToken = useStore((state) => state.accessToken);
-  const queryClient = useQueryClient();
 
   return useMutation<
     ParkingResponse,
     ParkingApiError,
     { payload: ParkingRequest }
   >({
-    mutationFn: ({ payload }) => createParking({ payload, bearerToken: accessToken }),
+    mutationFn: ({ payload }) =>
+      createParking({ payload, bearerToken: accessToken }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["parking"] });
     },
@@ -82,10 +83,7 @@ export function getParkingHistory({
   });
 }
 
-export function useGetParkingHistory(
-  limit: number = 50,
-  offset: number = 0
-) {
+export function useGetParkingHistory(limit: number = 50, offset: number = 0) {
   const accessToken = useStore((state) => state.accessToken);
 
   return useQuery<ParkingHistoryResponse, ParkingApiError>({
@@ -137,7 +135,6 @@ export function updateParking({
 
 export function useUpdateParking() {
   const accessToken = useStore((state) => state.accessToken);
-  const queryClient = useQueryClient();
 
   return useMutation<
     ParkingResponse,
@@ -170,15 +167,9 @@ export function deleteParking({
 
 export function useDeleteParking() {
   const accessToken = useStore((state) => state.accessToken);
-  const queryClient = useQueryClient();
 
-  return useMutation<
-    DeleteParkingResponse,
-    ParkingApiError,
-    { id: number }
-  >({
-    mutationFn: ({ id }) =>
-      deleteParking({ id, bearerToken: accessToken }),
+  return useMutation<DeleteParkingResponse, ParkingApiError, { id: number }>({
+    mutationFn: ({ id }) => deleteParking({ id, bearerToken: accessToken }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["parking"] });
     },
