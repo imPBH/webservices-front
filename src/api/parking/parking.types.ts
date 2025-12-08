@@ -34,12 +34,14 @@ export interface CurrentParkingResponse {
 }
 
 export interface ParkingHistoryResponse {
-  parkings: Parking[];
-  pagination: {
-    total: number;
-    limit: number;
-    offset: number;
-    hasMore: boolean;
+  data: {
+    parkings: Parking[];
+    pagination: {
+      total: number;
+      limit: number;
+      offset: number;
+      hasMore: boolean;
+    };
   };
 }
 

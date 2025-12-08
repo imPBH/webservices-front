@@ -6,6 +6,7 @@ import {
   useGetCurrentParking,
   useUpdateParking,
   useDeleteParking,
+  useGetParkingHistory,
 } from "../api/parking/parking";
 import { MapPin, Trash2, Edit, Save, X, Plus, Car } from "lucide-react";
 import { Container } from "../components/ui/Container";
@@ -27,14 +28,16 @@ export default function ParkingPage() {
     note: "",
   });
 
-  const { data: currentParkingData, isLoading } = useGetCurrentParking();
+  const currentParkingRequest = useGetCurrentParking();
+  const parkingHistoryRequest = useGetParkingHistory();
   const createMutation = useCreateParking();
   const updateMutation = useUpdateParking();
   const deleteMutation = useDeleteParking();
 
-  const currentParking = currentParkingData?.data.parking;
+  const currentParking = currentParkingRequest.data?.data.parking;
+  const parkingHistory = parkingHistoryRequest.data?.data.parkings;
 
-  console.log(currentParking);
+  console.log(parkingHistory);
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -137,7 +140,7 @@ export default function ParkingPage() {
     );
   };
 
-  if (isLoading) {
+  if (currentParkingRequest.isLoading) {
     return (
       <div className="min-h-screen bg-slate-950 text-slate-100">
         <Header />
@@ -406,11 +409,12 @@ export default function ParkingPage() {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-slate-300 mb-2">
-                      Adresse
+                      Adresse *
                     </label>
                     <input
                       type="text"
                       value={formData.address}
+                      required
                       onChange={(e) =>
                         setFormData({ ...formData, address: e.target.value })
                       }
@@ -420,9 +424,10 @@ export default function ParkingPage() {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-slate-300 mb-2">
-                      Note
+                      Note *
                     </label>
                     <textarea
+                      required
                       value={formData.note}
                       onChange={(e) =>
                         setFormData({ ...formData, note: e.target.value })
@@ -459,11 +464,215 @@ export default function ParkingPage() {
                 </form>
               )}
             </motion.div>
+
+            {/* Parking History Section */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.35 }}
+              className="rounded-2xl border border-white/10 bg-white/5 p-6 shadow-lg shadow-black/20 backdrop-blur lg:col-span-2"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-2xl font-bold flex items-center gap-2">
+                  <MapPin className="w-6 h-6 text-cyan-400" />
+                  Historique des positions
+                </h2>
+                <span className="text-sm text-slate-400">
+                  {parkingHistory?.length ?? 0} entrées
+                </span>
+              </div>
+
+              {/* Toggle d’affichage carte (sans state React) */}
+              {parkingHistory && (
+                <details className="mb-4">
+                  <summary className="cursor-pointer select-none text-sm text-slate-300 hover:text-slate-100">
+                    Afficher/masquer la carte de l'historique
+                  </summary>
+                  <div className="mt-3 h-[320px] w-full rounded-xl overflow-hidden border border-white/5">
+                    <ParkingMap parkings={parkingHistory} />
+                  </div>
+                </details>
+              )}
+
+              {/* Liste éditable */}
+              {!parkingHistory ? (
+                <div className="text-center py-10 bg-slate-900/30 rounded-lg border border-white/5">
+                  <MapPin className="w-12 h-12 mx-auto mb-3 text-slate-600" />
+                  <p className="text-slate-400 font-medium">Aucun historique</p>
+                  <p className="text-sm text-slate-500 mt-1">
+                    Créez une position pour remplir l'historique.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4 max-h-[480px] overflow-auto pr-1">
+                  <div className="space-y-4 max-h-[480px] overflow-auto pr-1">
+                    {parkingHistory.map((p) => (
+                      <HistoryItem key={p.id} p={p} />
+                    ))}
+                  </div>
+                </div>
+              )}
+            </motion.div>
           </div>
         </Container>
       </section>
-
       <Footer />
+    </div>
+  );
+}
+
+function HistoryItem({
+  p,
+}: {
+  p: {
+    id: number;
+    latitude: number;
+    longitude: number;
+    address?: string | null;
+    note?: string | null;
+    created_at: string;
+  };
+}) {
+  const [isEditingHistory, setIsEditingHistory] = useState(false);
+  const [address, setAddress] = useState(p.address ?? "");
+  const [note, setNote] = useState(p.note ?? "");
+
+  const updateMutation = useUpdateParking();
+  const toast = useToastContext();
+  const deleteMutation = useDeleteParking();
+
+  const onCancel = () => {
+    setIsEditingHistory(false);
+    setAddress(p.address ?? "");
+    setNote(p.note ?? "");
+  };
+
+  const onSave = async () => {
+    try {
+      await updateMutation.mutateAsync({
+        id: p.id,
+        payload: {
+          address: address || undefined,
+          note: note || undefined,
+        },
+      });
+      toast.success("Position mise à jour !");
+      setIsEditingHistory(false);
+    } catch (err) {
+      console.error(err);
+      toast.error("Échec de la mise à jour");
+    }
+  };
+
+  const onDelete = async () => {
+    if (!confirm("Supprimer cette position ?")) return;
+    try {
+      await deleteMutation.mutateAsync({ id: p.id });
+      toast.success("Position supprimée");
+    } catch (err) {
+      console.error(err);
+      toast.error("Échec de la suppression");
+    }
+  };
+
+  return (
+    <div className="rounded-xl border border-white/10 bg-white/5 p-4 mb-4">
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-2 text-sm text-slate-300">
+          <span className="font-semibold">#{p.id}</span>
+          <span className="opacity-60">
+            • {new Date(p.created_at).toLocaleString()}
+          </span>
+        </div>
+      </div>
+
+      {!isEditingHistory && (
+        <>
+          <div className="space-y-2 bg-slate-900/30 rounded-lg p-4 border border-white/5">
+            <p className="text-sm text-slate-300">
+              <strong className="text-cyan-400">Latitude:</strong> {p.latitude}
+            </p>
+            <p className="text-sm text-slate-300">
+              <strong className="text-cyan-400">Longitude:</strong>{" "}
+              {p.longitude}
+            </p>
+            {p.address && (
+              <p className="text-sm text-slate-300">
+                <strong className="text-cyan-400">Adresse:</strong> {p.address}
+              </p>
+            )}
+            {p.note && (
+              <p className="text-sm text-slate-300">
+                <strong className="text-cyan-400">Note:</strong> {p.note}
+              </p>
+            )}
+          </div>
+
+          <div className="mt-3 flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setIsEditingHistory(true)}
+              className="inline-flex items-center gap-2 px-3 py-1.5 bg-gradient-to-br from-cyan-400 to-sky-500 text-slate-950 font-semibold rounded-md hover:shadow-lg hover:shadow-cyan-500/30 transition-all"
+            >
+              <Edit className="w-4 h-4" /> Modifier
+            </button>
+            <button
+              type="button"
+              onClick={onDelete}
+              className="inline-flex items-center gap-2 px-3 py-1.5 bg-red-500/80 text-white rounded-md hover:bg-red-500 transition-all"
+            >
+              <Trash2 className="w-4 h-4" /> Supprimer
+            </button>
+          </div>
+        </>
+      )}
+
+      {isEditingHistory && (
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-3">
+            <div className="col-span-2">
+              <label className="block text-sm font-medium text-slate-300 mb-2">
+                Adresse
+              </label>
+              <input
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                className="w-full px-3 py-2 rounded-md bg-slate-900/50 border border-white/10 text-sm"
+                placeholder="Adresse…"
+              />
+            </div>
+            <div className="col-span-2">
+              <label className="block text-sm font-medium text-slate-300 mb-2">
+                Note
+              </label>
+              <textarea
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                rows={2}
+                className="w-full px-3 py-2 rounded-md bg-slate-900/50 border border-white/10 text-sm"
+                placeholder="Note…"
+              />
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={onSave}
+              className="inline-flex items-center gap-2 px-3 py-1.5 bg-gradient-to-br from-cyan-400 to-sky-500 text-slate-950 font-semibold rounded-md hover:shadow-lg hover:shadow-cyan-500/30 transition-all"
+            >
+              <Save className="w-4 h-4" /> Sauvegarder
+            </button>
+            <button
+              type="button"
+              onClick={onCancel}
+              className="inline-flex items-center gap-2 px-3 py-1.5 bg-slate-700/50 text-slate-300 rounded-md hover:bg-slate-700 transition-all"
+            >
+              <X className="w-4 h-4" /> Annuler
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
