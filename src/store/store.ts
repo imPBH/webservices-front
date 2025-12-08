@@ -8,12 +8,16 @@ interface Store {
   username: string;
   email: string;
   role: number;
+  parkingApiKey: string;
+  alertsApiKey: string;
   setLoggedIn: (value: boolean) => void;
   setAccessToken: (value: string) => void;
   setRefreshToken: (value: string) => void;
   setUsername: (value: string) => void;
   setEmail: (value: string) => void;
   setRole: (value: number) => void;
+  setParkingApiKey: (value: string) => void;
+  setAlertsApiKey: (value: string) => void;
 }
 
 export const useStore = create<Store>()(
@@ -25,6 +29,8 @@ export const useStore = create<Store>()(
       username: "",
       email: "",
       role: NaN,
+      parkingApiKey: import.meta.env.VITE_PARKING_API_KEY || "",
+      alertsApiKey: import.meta.env.VITE_ALERTS_API_KEY || "",
       setLoggedIn: (loggedIn: boolean) => set(() => ({ isLoggedIn: loggedIn })),
       setAccessToken: (accessToken: string) =>
         set(() => ({ accessToken: accessToken })),
@@ -33,6 +39,8 @@ export const useStore = create<Store>()(
       setUsername: (username: string) => set(() => ({ username: username })),
       setEmail: (email: string) => set(() => ({ email: email })),
       setRole: (role: number) => set(() => ({ role: role })),
+      setParkingApiKey: (apiKey: string) => set(() => ({ parkingApiKey: apiKey })),
+      setAlertsApiKey: (apiKey: string) => set(() => ({ alertsApiKey: apiKey })),
     }),
     {
       name: "webservice-storage",

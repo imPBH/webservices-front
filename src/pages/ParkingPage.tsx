@@ -6,9 +6,8 @@ import {
   useGetCurrentParking,
   useUpdateParking,
   useDeleteParking,
-  useStartTimer,
 } from "../api/parking/parking";
-import { MapPin, Clock, Trash2, Edit, Save, X, Plus, Car } from "lucide-react";
+import { MapPin, Trash2, Edit, Save, X, Plus, Car } from "lucide-react";
 import { Container } from "../components/ui/Container";
 import { Header } from "../components/layout/Header";
 import { Footer } from "../components/layout/Footer";
@@ -17,7 +16,7 @@ import { useToastContext } from "../contexts/ToastContext";
 
 export default function ParkingPage() {
   const username = useStore((state) => state.username);
-  const userId = useStore((state) => state.username);
+  const userId = useStore((state) => state.role);
   const toast = useToastContext();
 
   const [isCreating, setIsCreating] = useState(false);
@@ -28,13 +27,11 @@ export default function ParkingPage() {
     address: "",
     note: "",
   });
-  const [timerDuration, setTimerDuration] = useState("600");
 
   const { data: currentParkingData, isLoading } = useGetCurrentParking(userId);
   const createMutation = useCreateParking();
   const updateMutation = useUpdateParking();
   const deleteMutation = useDeleteParking();
-  const startTimerMutation = useStartTimer();
 
   const currentParking = currentParkingData?.parking;
 
@@ -42,8 +39,8 @@ export default function ParkingPage() {
     e.preventDefault();
     try {
       await createMutation.mutateAsync({
-        userId,
         payload: {
+          user_id: userId,
           latitude: parseFloat(formData.latitude),
           longitude: parseFloat(formData.longitude),
           address: formData.address || undefined,
@@ -86,29 +83,13 @@ export default function ParkingPage() {
 
     try {
       await deleteMutation.mutateAsync({
-        userId,
+        userId: userId,
         parkingId: currentParking.id,
       });
       toast.success("Parking supprimé avec succès !");
     } catch (error) {
       console.error("Error deleting parking:", error);
       toast.error("Erreur lors de la suppression du parking");
-    }
-  };
-
-  const handleStartTimer = async () => {
-    if (!currentParking) return;
-
-    try {
-      await startTimerMutation.mutateAsync({
-        userId,
-        parkingId: currentParking.id,
-        payload: { duration: parseInt(timerDuration) },
-      });
-      toast.success("Chronomètre démarré ! Vous recevrez une notification via WebSocket.");
-    } catch (error) {
-      console.error("Error starting timer:", error);
-      toast.error("Erreur lors du démarrage du chronomètre");
     }
   };
 
@@ -308,36 +289,6 @@ export default function ParkingPage() {
                           <Trash2 className="w-4 h-4" />
                           {deleteMutation.isPending ? "Suppression..." : "Supprimer"}
                         </button>
-                      </div>
-
-                      {/* Timer Section */}
-                      <div className="mt-6 pt-6 border-t border-white/10">
-                        <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
-                          <Clock className="w-5 h-5 text-cyan-400" />
-                          Chronomètre de Parking
-                        </h3>
-                        <div className="flex gap-2 items-end">
-                          <div className="flex-1">
-                            <label className="block text-sm font-medium text-slate-300 mb-2">
-                              Durée (secondes)
-                            </label>
-                            <input
-                              type="number"
-                              min="1"
-                              max="86400"
-                              value={timerDuration}
-                              onChange={(e) => setTimerDuration(e.target.value)}
-                              className="w-full px-4 py-2 rounded-lg bg-slate-900/50 border border-white/10 text-slate-100 placeholder-slate-500 focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
-                            />
-                          </div>
-                          <button
-                            onClick={handleStartTimer}
-                            disabled={startTimerMutation.isPending}
-                            className="px-4 py-2 bg-green-500/80 text-white rounded-lg hover:bg-green-500 hover:shadow-lg transition-all disabled:opacity-50"
-                          >
-                            {startTimerMutation.isPending ? "Démarrage..." : "Démarrer"}
-                          </button>
-                        </div>
                       </div>
                     </>
                   )}

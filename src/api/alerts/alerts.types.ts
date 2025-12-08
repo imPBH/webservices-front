@@ -1,4 +1,3 @@
-// Catégories
 export interface Category {
   id_category: number;
   title: string;
@@ -8,7 +7,6 @@ export interface CategoryInput {
   title: string;
 }
 
-// Médias
 export interface Media {
   id_media: number;
   file_type: string;
@@ -25,7 +23,6 @@ export interface MediaInput {
   user_id: number;
 }
 
-// Participations
 export interface Participation {
   id_participation: number;
   user_id: number;
@@ -42,7 +39,6 @@ export interface ParticipationInput {
   alert_user_id: number;
 }
 
-// Alertes
 export type AlertStatus = "ouverte" | "en_cours" | "resolue";
 
 export interface Alert {

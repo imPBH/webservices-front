@@ -1,12 +1,17 @@
-const buildHeaders = (bearerToken?: string) => {
-    return (
-        {
-            headers: {
-                'Authorization': `Bearer ${bearerToken}`,
-                'Content-Type': 'application/json',
-            }
-        }
-    )
+const buildHeaders = (bearerToken?: string, apiKey?: string) => {
+    const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+    };
+
+    if (bearerToken) {
+        headers['Authorization'] = `Bearer ${bearerToken}`;
+    }
+
+    if (apiKey) {
+        headers['X-API-Key'] = apiKey;
+    }
+
+    return { headers };
 }
   
 const defaultPostOptions = {
@@ -35,24 +40,24 @@ async function fetchJson({ url, options, content }: { url: string; options?: obj
 }
   
 export const jsonApi = {
-    get: ({url, options, bearerToken}: {url: string, options?: object, bearerToken?: string}) => {
-        return fetchJson({ url, options: { ...buildHeaders(bearerToken), ...options} });
-    },
-    
-    post: ({url, content, options, bearerToken}: {url: string, content?: object, options?: object, bearerToken?: string}) => {
-        return fetchJson({ url, options: { ...buildHeaders(bearerToken), ...defaultPostOptions, ...options }, content });
-    },
-    
-    patch: ({url, content, options, bearerToken}: {url: string, content: object, options?: object, bearerToken?: string}) => {
-        return fetchJson({ url, options: { ...buildHeaders(bearerToken), ...defaultPatchOptions, ...options }, content });
+    get: ({url, options, bearerToken, apiKey}: {url: string, options?: object, bearerToken?: string, apiKey?: string}) => {
+        return fetchJson({ url, options: { ...buildHeaders(bearerToken, apiKey), ...options} });
     },
 
-    put: ({url, content, options, bearerToken}: {url: string, content: object, options?: object, bearerToken?: string}) => {
-        return fetchJson({ url, options: { ...buildHeaders(bearerToken), ...defaultPutOptions, ...options }, content });
+    post: ({url, content, options, bearerToken, apiKey}: {url: string, content?: object, options?: object, bearerToken?: string, apiKey?: string}) => {
+        return fetchJson({ url, options: { ...buildHeaders(bearerToken, apiKey), ...defaultPostOptions, ...options }, content });
     },
 
-    delete: ({url, content, options, bearerToken}: {url: string, content?: object, options?: object, bearerToken?: string}) => {
-        return fetchJson({ url, options: { ...buildHeaders(bearerToken), ...defaultDeleteOptions, ...options }, content });
+    patch: ({url, content, options, bearerToken, apiKey}: {url: string, content: object, options?: object, bearerToken?: string, apiKey?: string}) => {
+        return fetchJson({ url, options: { ...buildHeaders(bearerToken, apiKey), ...defaultPatchOptions, ...options }, content });
+    },
+
+    put: ({url, content, options, bearerToken, apiKey}: {url: string, content: object, options?: object, bearerToken?: string, apiKey?: string}) => {
+        return fetchJson({ url, options: { ...buildHeaders(bearerToken, apiKey), ...defaultPutOptions, ...options }, content });
+    },
+
+    delete: ({url, content, options, bearerToken, apiKey}: {url: string, content?: object, options?: object, bearerToken?: string, apiKey?: string}) => {
+        return fetchJson({ url, options: { ...buildHeaders(bearerToken, apiKey), ...defaultDeleteOptions, ...options }, content });
     }
 };
   

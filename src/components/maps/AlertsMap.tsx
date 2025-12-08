@@ -3,20 +3,18 @@ import L from "leaflet";
 import type { Alert } from "../../api/alerts/alerts.types";
 import "leaflet/dist/leaflet.css";
 
-// Fix for default marker icons in React-Leaflet
 import icon from "leaflet/dist/images/marker-icon.png";
 import iconShadow from "leaflet/dist/images/marker-shadow.png";
 
-// Custom marker colors based on status
 const createCustomIcon = (status: string) => {
-  let color = "#3b82f6"; // blue par défaut
+  let color = "#3b82f6";
 
   if (status === "ouverte") {
-    color = "#ef4444"; // red
+    color = "#ef4444";
   } else if (status === "en_cours") {
-    color = "#f59e0b"; // orange
+    color = "#f59e0b";
   } else if (status === "resolue") {
-    color = "#10b981"; // green
+    color = "#10b981";
   }
 
   const svgIcon = `
@@ -54,11 +52,10 @@ interface AlertsMapProps {
 
 export default function AlertsMap({
   alerts,
-  center = [48.8566, 2.3522], // Paris par défaut
+  center = [48.8566, 2.3522],
   zoom = 12,
   onMarkerClick,
 }: AlertsMapProps) {
-  // Si on a des alertes, centrer sur la première
   const mapCenter =
     alerts.length > 0
       ? ([alerts[0].location_lat, alerts[0].location_lon] as [number, number])

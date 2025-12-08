@@ -3,7 +3,6 @@ import L from "leaflet";
 import type { Parking } from "../../api/parking/parking.types";
 import "leaflet/dist/leaflet.css";
 
-// Fix for default marker icons in React-Leaflet
 import icon from "leaflet/dist/images/marker-icon.png";
 import iconShadow from "leaflet/dist/images/marker-shadow.png";
 
@@ -25,11 +24,10 @@ interface ParkingMapProps {
 
 export default function ParkingMap({
   parkings,
-  center = [48.8566, 2.3522], // Paris par défaut
+  center = [48.8566, 2.3522],
   zoom = 13,
   onMarkerClick,
 }: ParkingMapProps) {
-  // Si on a des parkings, centrer sur le premier
   const mapCenter =
     parkings.length > 0
       ? ([parkings[0].latitude, parkings[0].longitude] as [number, number])

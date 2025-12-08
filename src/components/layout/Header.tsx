@@ -24,7 +24,7 @@ export function Header() {
   return (
     <header className="sticky top-0 z-40 border-b border-white/5 bg-slate-950/60 backdrop-blur">
       <Container className="flex h-16 items-center justify-between">
-        {/* Logo - Cliquable */}
+        {/* Logo */}
         <a href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-400 to-sky-500 shadow-lg shadow-cyan-500/20">
             <Building2 className="h-5 w-5 text-slate-950" />

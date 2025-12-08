@@ -8,14 +8,15 @@ export interface Parking {
   created_at: string;
 }
 
-export interface CreateParkingPayload {
+export interface ParkingRequest {
+  user_id: number;
   latitude: number;
   longitude: number;
   address?: string;
   note?: string;
 }
 
-export interface UpdateParkingPayload {
+export interface UpdateParkingRequest {
   address?: string;
   note?: string;
 }
@@ -25,26 +26,26 @@ export interface ParkingResponse {
   parking: Parking;
 }
 
+export interface CurrentParkingResponse {
+  parking: Parking;
+}
+
+export interface ParkingHistoryResponse {
+  parkings: Parking[];
+  pagination: {
+    total: number;
+    limit: number;
+    offset: number;
+    hasMore: boolean;
+  };
+}
+
 export interface DeleteParkingResponse {
   message: string;
 }
 
-export interface StartTimerPayload {
-  duration: number;
-}
-
-export interface TimerResponse {
-  message: string;
-  timer: {
-    parkingId: number;
-    duration: number;
-    startTime: string;
-    endTime: string;
-  };
-}
-
-export interface ParkingError {
+export interface ParkingApiError {
   error: string;
-  message: string;
+  message?: string;
   details?: string[];
 }
