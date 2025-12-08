@@ -8,27 +8,30 @@ import type {
   ParkingHistoryResponse,
   DeleteParkingResponse,
   ParkingApiError,
+  GetParkingResponse,
+  StartTimerRequest,
+  StartTimerResponse,
 } from "./parking.types";
 import { useStore } from "../../store/store";
 
-const PARKING_SERVICE_URL: string = import.meta.env.VITE_PARKING_SERVICE_URL;
+const AUTH_SERVICE_URL: string = import.meta.env.VITE_AUTH_SERVICE_URL;
 
 export function createParking({
   payload,
-  apiKey,
+  bearerToken,
 }: {
   payload: ParkingRequest;
-  apiKey: string;
+  bearerToken: string;
 }): Promise<ParkingResponse> {
   return jsonApi.post({
-    url: `${PARKING_SERVICE_URL}/api/v1/parking`,
+    url: `${AUTH_SERVICE_URL}/api/parking`,
     content: payload,
-    apiKey,
+    bearerToken,
   });
 }
 
 export function useCreateParking() {
-  const parkingApiKey = useStore((state) => state.parkingApiKey);
+  const accessToken = useStore((state) => state.accessToken);
   const queryClient = useQueryClient();
 
   return useMutation<
@@ -36,7 +39,7 @@ export function useCreateParking() {
     ParkingApiError,
     { payload: ParkingRequest }
   >({
-    mutationFn: ({ payload }) => createParking({ payload, apiKey: parkingApiKey }),
+    mutationFn: ({ payload }) => createParking({ payload, bearerToken: accessToken }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["parking"] });
     },
@@ -44,126 +47,169 @@ export function useCreateParking() {
 }
 
 export function getCurrentParking({
-  userId,
-  apiKey,
+  bearerToken,
 }: {
-  userId: number;
-  apiKey: string;
+  bearerToken: string;
 }): Promise<CurrentParkingResponse> {
   return jsonApi.get({
-    url: `${PARKING_SERVICE_URL}/api/v1/parking/current?user_id=${userId}`,
-    apiKey,
+    url: `${AUTH_SERVICE_URL}/api/parking/current`,
+    bearerToken,
   });
 }
 
-export function useGetCurrentParking(userId: number) {
-  const parkingApiKey = useStore((state) => state.parkingApiKey);
+export function useGetCurrentParking() {
+  const accessToken = useStore((state) => state.accessToken);
 
   return useQuery<CurrentParkingResponse, ParkingApiError>({
-    queryKey: ["parking", "current", userId],
-    queryFn: () => getCurrentParking({ userId, apiKey: parkingApiKey }),
-    enabled: !!userId && !!parkingApiKey,
+    queryKey: ["parking", "current"],
+    queryFn: () => getCurrentParking({ bearerToken: accessToken }),
+    enabled: !!accessToken,
   });
 }
 
 export function getParkingHistory({
-  userId,
   limit = 50,
   offset = 0,
-  apiKey,
+  bearerToken,
 }: {
-  userId: number;
   limit?: number;
   offset?: number;
-  apiKey: string;
+  bearerToken: string;
 }): Promise<ParkingHistoryResponse> {
   return jsonApi.get({
-    url: `${PARKING_SERVICE_URL}/api/v1/parking/history?user_id=${userId}&limit=${limit}&offset=${offset}`,
-    apiKey,
+    url: `${AUTH_SERVICE_URL}/api/parking/history?limit=${limit}&offset=${offset}`,
+    bearerToken,
   });
 }
 
 export function useGetParkingHistory(
-  userId: number,
   limit: number = 50,
   offset: number = 0
 ) {
-  const parkingApiKey = useStore((state) => state.parkingApiKey);
+  const accessToken = useStore((state) => state.accessToken);
 
   return useQuery<ParkingHistoryResponse, ParkingApiError>({
-    queryKey: ["parking", "history", userId, limit, offset],
+    queryKey: ["parking", "history", limit, offset],
     queryFn: () =>
-      getParkingHistory({ userId, limit, offset, apiKey: parkingApiKey }),
-    enabled: !!userId && !!parkingApiKey,
+      getParkingHistory({ limit, offset, bearerToken: accessToken }),
+    enabled: !!accessToken,
+  });
+}
+
+export function getParking({
+  id,
+  bearerToken,
+}: {
+  id: number;
+  bearerToken: string;
+}): Promise<GetParkingResponse> {
+  return jsonApi.get({
+    url: `${AUTH_SERVICE_URL}/api/parking/${id}`,
+    bearerToken,
+  });
+}
+
+export function useGetParking(id: number) {
+  const accessToken = useStore((state) => state.accessToken);
+
+  return useQuery<GetParkingResponse, ParkingApiError>({
+    queryKey: ["parking", id],
+    queryFn: () => getParking({ id, bearerToken: accessToken }),
+    enabled: !!id && !!accessToken,
   });
 }
 
 export function updateParking({
-  userId,
-  parkingId,
+  id,
   payload,
-  apiKey,
+  bearerToken,
 }: {
-  userId: number;
-  parkingId: number;
+  id: number;
   payload: UpdateParkingRequest;
-  apiKey: string;
+  bearerToken: string;
 }): Promise<ParkingResponse> {
   return jsonApi.patch({
-    url: `${PARKING_SERVICE_URL}/api/v1/parking/${userId}/${parkingId}`,
+    url: `${AUTH_SERVICE_URL}/api/parking/${id}`,
     content: payload,
-    apiKey,
+    bearerToken,
   });
 }
 
 export function useUpdateParking() {
-  const parkingApiKey = useStore((state) => state.parkingApiKey);
+  const accessToken = useStore((state) => state.accessToken);
   const queryClient = useQueryClient();
 
   return useMutation<
     ParkingResponse,
     ParkingApiError,
-    { userId: number; parkingId: number; payload: UpdateParkingRequest }
+    { id: number; payload: UpdateParkingRequest }
   >({
-    mutationFn: ({ userId, parkingId, payload }) =>
-      updateParking({ userId, parkingId, payload, apiKey: parkingApiKey }),
-    onSuccess: (_, variables) => {
+    mutationFn: ({ id, payload }) =>
+      updateParking({ id, payload, bearerToken: accessToken }),
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["parking"] });
       queryClient.invalidateQueries({
-        queryKey: ["parking", "current", variables.userId],
+        queryKey: ["parking", "current"],
       });
     },
   });
 }
 
 export function deleteParking({
-  userId,
-  parkingId,
-  apiKey,
+  id,
+  bearerToken,
 }: {
-  userId: number;
-  parkingId: number;
-  apiKey: string;
+  id: number;
+  bearerToken: string;
 }): Promise<DeleteParkingResponse> {
   return jsonApi.delete({
-    url: `${PARKING_SERVICE_URL}/api/v1/parking/${userId}/${parkingId}`,
-    apiKey,
+    url: `${AUTH_SERVICE_URL}/api/parking/${id}`,
+    bearerToken,
   });
 }
 
 export function useDeleteParking() {
-  const parkingApiKey = useStore((state) => state.parkingApiKey);
+  const accessToken = useStore((state) => state.accessToken);
   const queryClient = useQueryClient();
 
   return useMutation<
     DeleteParkingResponse,
     ParkingApiError,
-    { userId: number; parkingId: number }
+    { id: number }
   >({
-    mutationFn: ({ userId, parkingId }) =>
-      deleteParking({ userId, parkingId, apiKey: parkingApiKey }),
+    mutationFn: ({ id }) =>
+      deleteParking({ id, bearerToken: accessToken }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["parking"] });
     },
+  });
+}
+
+export function startParkingTimer({
+  id,
+  payload,
+  bearerToken,
+}: {
+  id: number;
+  payload?: StartTimerRequest;
+  bearerToken: string;
+}): Promise<StartTimerResponse> {
+  return jsonApi.post({
+    url: `${AUTH_SERVICE_URL}/api/parking/${id}/start-timer`,
+    content: payload || {},
+    bearerToken,
+  });
+}
+
+export function useStartParkingTimer() {
+  const accessToken = useStore((state) => state.accessToken);
+
+  return useMutation<
+    StartTimerResponse,
+    ParkingApiError,
+    { id: number; payload?: StartTimerRequest }
+  >({
+    mutationFn: ({ id, payload }) =>
+      startParkingTimer({ id, payload, bearerToken: accessToken }),
   });
 }

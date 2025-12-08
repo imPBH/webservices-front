@@ -16,7 +16,6 @@ import { useToastContext } from "../contexts/ToastContext";
 
 export default function ParkingPage() {
   const username = useStore((state) => state.username);
-  const userId = useStore((state) => state.role);
   const toast = useToastContext();
 
   const [isCreating, setIsCreating] = useState(false);
@@ -28,7 +27,7 @@ export default function ParkingPage() {
     note: "",
   });
 
-  const { data: currentParkingData, isLoading } = useGetCurrentParking(userId);
+  const { data: currentParkingData, isLoading } = useGetCurrentParking();
   const createMutation = useCreateParking();
   const updateMutation = useUpdateParking();
   const deleteMutation = useDeleteParking();
@@ -40,7 +39,6 @@ export default function ParkingPage() {
     try {
       await createMutation.mutateAsync({
         payload: {
-          user_id: userId,
           latitude: parseFloat(formData.latitude),
           longitude: parseFloat(formData.longitude),
           address: formData.address || undefined,
@@ -62,8 +60,7 @@ export default function ParkingPage() {
 
     try {
       await updateMutation.mutateAsync({
-        userId,
-        parkingId: currentParking.id,
+        id: currentParking.id,
         payload: {
           address: formData.address || undefined,
           note: formData.note || undefined,
@@ -83,8 +80,7 @@ export default function ParkingPage() {
 
     try {
       await deleteMutation.mutateAsync({
-        userId: userId,
-        parkingId: currentParking.id,
+        id: currentParking.id,
       });
       toast.success("Parking supprimé avec succès !");
     } catch (error) {

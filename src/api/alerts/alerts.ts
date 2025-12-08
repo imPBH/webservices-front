@@ -14,79 +14,77 @@ import type {
 } from "./alerts.types";
 import { useStore } from "../../store/store";
 
-const ALERTS_SERVICE_URL: string = import.meta.env.VITE_ALERTS_SERVICE_URL;
-const alertsEndpoint = ALERTS_SERVICE_URL + "/api";
+const AUTH_SERVICE_URL: string = import.meta.env.VITE_AUTH_SERVICE_URL;
+const alertsEndpoint = AUTH_SERVICE_URL + "/api/alertes_citoyennes";
 
 export function getAlerts({
   page = 1,
   limit = 20,
-  apiKey,
+  bearerToken,
 }: {
   page?: number;
   limit?: number;
-  apiKey: string;
+  bearerToken: string;
 }): Promise<AlertPage> {
   return jsonApi.get({
     url: `${alertsEndpoint}/alerts?page=${page}&limit=${limit}`,
-    apiKey,
+    bearerToken,
   });
 }
 
 export function useGetAlerts(page = 1, limit = 20) {
-  const alertsApiKey = useStore((state) => state.alertsApiKey);
+  const accessToken = useStore((state) => state.accessToken);
 
   return useQuery<AlertPage, AlertsError>({
     queryKey: ["alerts", page, limit],
-    queryFn: () => getAlerts({ page, limit, apiKey: alertsApiKey }),
-    enabled: !!alertsApiKey,
+    queryFn: () => getAlerts({ page, limit, bearerToken: accessToken }),
+    enabled: !!accessToken,
   });
 }
 
 export function getAlertById({
-  id_alert,
-  user_id,
-  apiKey,
+  id,
+  bearerToken,
 }: {
-  id_alert: number;
-  user_id: number;
-  apiKey: string;
+  id: number;
+  bearerToken: string;
 }): Promise<Alert> {
   return jsonApi.get({
-    url: `${alertsEndpoint}/alerts/${id_alert}/${user_id}`,
-    apiKey,
+    url: `${alertsEndpoint}/alerts/${id}`,
+    bearerToken,
   });
 }
 
-export function useGetAlertById(id_alert: number, user_id: number) {
-  const alertsApiKey = useStore((state) => state.alertsApiKey);
+export function useGetAlertById(id: number) {
+  const accessToken = useStore((state) => state.accessToken);
 
   return useQuery<Alert, AlertsError>({
-    queryKey: ["alert", id_alert, user_id],
-    queryFn: () => getAlertById({ id_alert, user_id, apiKey: alertsApiKey }),
-    enabled: !!id_alert && !!user_id && !!alertsApiKey,
+    queryKey: ["alert", id],
+    queryFn: () => getAlertById({ id, bearerToken: accessToken }),
+    enabled: !!id && !!accessToken,
   });
 }
 
 export function createAlert({
   payload,
-  apiKey,
+  bearerToken,
 }: {
   payload: AlertInput;
-  apiKey: string;
+  bearerToken: string;
 }): Promise<Alert> {
   return jsonApi.post({
     url: `${alertsEndpoint}/alerts`,
     content: payload,
-    apiKey,
+    bearerToken,
   });
 }
 
 export function useCreateAlert() {
-  const alertsApiKey = useStore((state) => state.alertsApiKey);
+  const accessToken = useStore((state) => state.accessToken);
   const queryClient = useQueryClient();
 
   return useMutation<Alert, AlertsError, AlertInput>({
-    mutationFn: (payload: AlertInput) => createAlert({ payload, apiKey: alertsApiKey }),
+    mutationFn: (payload: AlertInput) => createAlert({ payload, bearerToken: accessToken }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["alerts"] });
     },
@@ -94,150 +92,146 @@ export function useCreateAlert() {
 }
 
 export function updateAlert({
-  id_alert,
-  user_id,
+  id,
   payload,
-  apiKey,
+  bearerToken,
 }: {
-  id_alert: number;
-  user_id: number;
+  id: number;
   payload: AlertInput;
-  apiKey: string;
+  bearerToken: string;
 }): Promise<Alert> {
   return jsonApi.put({
-    url: `${alertsEndpoint}/alerts/${id_alert}/${user_id}`,
+    url: `${alertsEndpoint}/alerts/${id}`,
     content: payload,
-    apiKey,
+    bearerToken,
   });
 }
 
 export function useUpdateAlert() {
-  const alertsApiKey = useStore((state) => state.alertsApiKey);
+  const accessToken = useStore((state) => state.accessToken);
   const queryClient = useQueryClient();
 
   return useMutation<
     Alert,
     AlertsError,
-    { id_alert: number; user_id: number; payload: AlertInput }
+    { id: number; payload: AlertInput }
   >({
-    mutationFn: ({ id_alert, user_id, payload }) =>
-      updateAlert({ id_alert, user_id, payload, apiKey: alertsApiKey }),
+    mutationFn: ({ id, payload }) =>
+      updateAlert({ id, payload, bearerToken: accessToken }),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["alerts"] });
       queryClient.invalidateQueries({
-        queryKey: ["alert", variables.id_alert, variables.user_id],
+        queryKey: ["alert", variables.id],
       });
     },
   });
 }
 
 export function deleteAlert({
-  id_alert,
-  user_id,
-  apiKey,
+  id,
+  bearerToken,
 }: {
-  id_alert: number;
-  user_id: number;
-  apiKey: string;
+  id: number;
+  bearerToken: string;
 }): Promise<void> {
   return jsonApi.delete({
-    url: `${alertsEndpoint}/alerts/${id_alert}/${user_id}`,
-    apiKey,
+    url: `${alertsEndpoint}/alerts/${id}`,
+    bearerToken,
   });
 }
 
 export function useDeleteAlert() {
-  const alertsApiKey = useStore((state) => state.alertsApiKey);
+  const accessToken = useStore((state) => state.accessToken);
   const queryClient = useQueryClient();
 
-  return useMutation<void, AlertsError, { id_alert: number; user_id: number }>({
-    mutationFn: ({ id_alert, user_id }) => deleteAlert({ id_alert, user_id, apiKey: alertsApiKey }),
+  return useMutation<void, AlertsError, { id: number }>({
+    mutationFn: ({ id }) => deleteAlert({ id, bearerToken: accessToken }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["alerts"] });
     },
   });
 }
 
-export function getCategories(apiKey: string): Promise<Category[]> {
+export function getCategories(bearerToken: string): Promise<Category[]> {
   return jsonApi.get({
     url: `${alertsEndpoint}/categories`,
-    apiKey,
+    bearerToken,
   });
 }
 
 export function useGetCategories() {
-  const alertsApiKey = useStore((state) => state.alertsApiKey);
+  const accessToken = useStore((state) => state.accessToken);
 
   return useQuery<Category[], AlertsError>({
     queryKey: ["categories"],
-    queryFn: () => getCategories(alertsApiKey),
-    enabled: !!alertsApiKey,
+    queryFn: () => getCategories(accessToken),
+    enabled: !!accessToken,
   });
 }
 
 export function createCategory({
   payload,
-  apiKey,
+  bearerToken,
 }: {
   payload: CategoryInput;
-  apiKey: string;
+  bearerToken: string;
 }): Promise<Category> {
   return jsonApi.post({
     url: `${alertsEndpoint}/categories`,
     content: payload,
-    apiKey,
+    bearerToken,
   });
 }
 
 export function useCreateCategory() {
-  const alertsApiKey = useStore((state) => state.alertsApiKey);
+  const accessToken = useStore((state) => state.accessToken);
   const queryClient = useQueryClient();
 
   return useMutation<Category, AlertsError, CategoryInput>({
-    mutationFn: (payload: CategoryInput) => createCategory({ payload, apiKey: alertsApiKey }),
+    mutationFn: (payload: CategoryInput) => createCategory({ payload, bearerToken: accessToken }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["categories"] });
     },
   });
 }
 
-export function getMedias(apiKey: string): Promise<Media[]> {
+export function getMedias(bearerToken: string): Promise<Media[]> {
   return jsonApi.get({
     url: `${alertsEndpoint}/medias`,
-    apiKey,
+    bearerToken,
   });
 }
 
 export function useGetMedias() {
-  const alertsApiKey = useStore((state) => state.alertsApiKey);
+  const accessToken = useStore((state) => state.accessToken);
 
   return useQuery<Media[], AlertsError>({
     queryKey: ["medias"],
-    queryFn: () => getMedias(alertsApiKey),
-    enabled: !!alertsApiKey,
+    queryFn: () => getMedias(accessToken),
+    enabled: !!accessToken,
   });
 }
 
 export function createMedia({
   payload,
-  apiKey,
+  bearerToken,
 }: {
   payload: MediaInput;
-  apiKey: string;
+  bearerToken: string;
 }): Promise<Media> {
   return jsonApi.post({
     url: `${alertsEndpoint}/medias`,
     content: payload,
-    apiKey,
+    bearerToken,
   });
 }
 
 export function useCreateMedia() {
-  const alertsApiKey = useStore((state) => state.alertsApiKey);
+  const accessToken = useStore((state) => state.accessToken);
   const queryClient = useQueryClient();
 
   return useMutation<Media, AlertsError, MediaInput>({
-    mutationFn: (payload: MediaInput) => createMedia({ payload, apiKey: alertsApiKey }),
+    mutationFn: (payload: MediaInput) => createMedia({ payload, bearerToken: accessToken }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["medias"] });
     },
@@ -245,68 +239,68 @@ export function useCreateMedia() {
 }
 
 export function deleteMedia({
-  id_media,
-  apiKey,
+  id,
+  bearerToken,
 }: {
-  id_media: number;
-  apiKey: string;
+  id: number;
+  bearerToken: string;
 }): Promise<void> {
   return jsonApi.delete({
-    url: `${alertsEndpoint}/medias/${id_media}`,
-    apiKey,
+    url: `${alertsEndpoint}/medias/${id}`,
+    bearerToken,
   });
 }
 
 export function useDeleteMedia() {
-  const alertsApiKey = useStore((state) => state.alertsApiKey);
+  const accessToken = useStore((state) => state.accessToken);
   const queryClient = useQueryClient();
 
   return useMutation<void, AlertsError, number>({
-    mutationFn: (id_media: number) => deleteMedia({ id_media, apiKey: alertsApiKey }),
+    mutationFn: (id: number) => deleteMedia({ id, bearerToken: accessToken }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["medias"] });
     },
   });
 }
 
-export function getParticipations(apiKey: string): Promise<Participation[]> {
+export function getParticipations(bearerToken: string): Promise<Participation[]> {
   return jsonApi.get({
     url: `${alertsEndpoint}/participations`,
-    apiKey,
+    bearerToken,
   });
 }
 
 export function useGetParticipations() {
-  const alertsApiKey = useStore((state) => state.alertsApiKey);
+  const accessToken = useStore((state) => state.accessToken);
 
   return useQuery<Participation[], AlertsError>({
     queryKey: ["participations"],
-    queryFn: () => getParticipations(alertsApiKey),
-    enabled: !!alertsApiKey,
+    queryFn: () => getParticipations(accessToken),
+    enabled: !!accessToken,
   });
 }
 
 export function createParticipation({
   payload,
-  apiKey,
+  bearerToken,
 }: {
   payload: ParticipationInput;
-  apiKey: string;
+  bearerToken: string;
 }): Promise<Participation> {
   return jsonApi.post({
     url: `${alertsEndpoint}/participations`,
     content: payload,
-    apiKey,
+    bearerToken,
   });
 }
 
 export function useCreateParticipation() {
-  const alertsApiKey = useStore((state) => state.alertsApiKey);
+  const accessToken = useStore((state) => state.accessToken);
   const queryClient = useQueryClient();
 
   return useMutation<Participation, AlertsError, ParticipationInput>({
     mutationFn: (payload: ParticipationInput) =>
-      createParticipation({ payload, apiKey: alertsApiKey }),
+      createParticipation({ payload, bearerToken: accessToken }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["participations"] });
       queryClient.invalidateQueries({ queryKey: ["alerts"] });
@@ -315,25 +309,25 @@ export function useCreateParticipation() {
 }
 
 export function deleteParticipation({
-  id_participation,
-  apiKey,
+  id,
+  bearerToken,
 }: {
-  id_participation: number;
-  apiKey: string;
+  id: number;
+  bearerToken: string;
 }): Promise<void> {
   return jsonApi.delete({
-    url: `${alertsEndpoint}/participations/${id_participation}`,
-    apiKey,
+    url: `${alertsEndpoint}/participations/${id}`,
+    bearerToken,
   });
 }
 
 export function useDeleteParticipation() {
-  const alertsApiKey = useStore((state) => state.alertsApiKey);
+  const accessToken = useStore((state) => state.accessToken);
   const queryClient = useQueryClient();
 
   return useMutation<void, AlertsError, number>({
-    mutationFn: (id_participation: number) =>
-      deleteParticipation({ id_participation, apiKey: alertsApiKey }),
+    mutationFn: (id: number) =>
+      deleteParticipation({ id, bearerToken: accessToken }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["participations"] });
     },

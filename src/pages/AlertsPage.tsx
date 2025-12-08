@@ -27,7 +27,7 @@ import { useToastContext } from "../contexts/ToastContext";
 
 export default function AlertsPage() {
   const username = useStore((state) => state.username);
-  const userId = parseInt(useStore((state) => state.username) || "0");
+  const userId = useStore((state) => state.userId);
   const toast = useToastContext();
 
   const [page, setPage] = useState(1);
@@ -97,8 +97,7 @@ export default function AlertsPage() {
 
     try {
       await updateMutation.mutateAsync({
-        id_alert: editingAlert.id_alert,
-        user_id: editingAlert.user_id,
+        id: editingAlert.id_alert,
         payload: {
           user_id: editingAlert.user_id,
           title: formData.title,
@@ -132,8 +131,7 @@ export default function AlertsPage() {
 
     try {
       await deleteMutation.mutateAsync({
-        id_alert: alert.id_alert,
-        user_id: alert.user_id,
+        id: alert.id_alert,
       });
       toast.success("Alerte supprimée avec succès !");
     } catch (error) {

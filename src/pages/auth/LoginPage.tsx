@@ -35,7 +35,6 @@ export default function LoginPage() {
 
   const pending = login.isPending;
   const error = login?.error;
-  console.log(error);
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100">
