@@ -204,6 +204,35 @@ export default function AlertsPage() {
     }
   };
 
+  const handleAddAlert = () => {
+    setIsCreating(true);
+
+    if (!navigator.geolocation) {
+      console.error("La géolocalisation n'est pas supportée par ce navigateur");
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const { latitude, longitude } = pos.coords;
+        setFormData((prev) => ({
+          ...prev,
+          latitude: latitude.toString(),
+          longitude: longitude.toString(),
+        }));
+        toast.success("Position GPS récupérée !");
+      },
+      (err) => {
+        console.error(err);
+        toast.error("Impossible de récupérer votre position");
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+      }
+    );
+  };
+
   if (alertsRequest.isLoading) {
     return (
       <div className="min-h-screen bg-slate-950 text-slate-100">
@@ -297,7 +326,7 @@ export default function AlertsPage() {
 
               {!isCreating && !editingAlert ? (
                 <button
-                  onClick={() => setIsCreating(true)}
+                  onClick={handleAddAlert}
                   className="w-full px-6 py-4 bg-gradient-to-br from-cyan-400 to-sky-500 text-slate-950 font-semibold rounded-xl hover:shadow-lg hover:shadow-cyan-500/30 transition-all flex items-center justify-center gap-2"
                 >
                   <Plus className="w-5 h-5" />
