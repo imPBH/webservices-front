@@ -56,10 +56,9 @@ export default function AlertsMap({
   zoom = 12,
   onMarkerClick,
 }: AlertsMapProps) {
-  const mapCenter =
-    alerts.length > 0
-      ? ([alerts[0].location_lat, alerts[0].location_lon] as [number, number])
-      : center;
+  const mapCenter = alerts
+    ? ([alerts[0].latitude, alerts[0].longitude] as [number, number])
+    : center;
 
   const getStatusBadgeColor = (status: string) => {
     switch (status) {
@@ -88,36 +87,38 @@ export default function AlertsMap({
         />
         {alerts.map((alert) => (
           <Marker
-            key={`${alert.id_alert}-${alert.user_id}`}
-            position={[alert.location_lat, alert.location_lon]}
-            icon={createCustomIcon(alert.status)}
+            key={`${alert.id}-${alert.userId}`}
+            position={[alert.latitude, alert.longitude]}
+            icon={createCustomIcon(alert.statut)}
             eventHandlers={{
               click: () => onMarkerClick?.(alert),
             }}
           >
             <Popup>
               <div className="p-2 min-w-[200px]">
-                <h3 className="font-bold text-sm mb-2">{alert.title}</h3>
+                <h3 className="font-bold text-sm mb-2">{alert.titre}</h3>
                 <div className="space-y-1">
                   <span
-                    className={`inline-block px-2 py-1 rounded text-xs font-medium ${getStatusBadgeColor(alert.status)}`}
+                    className={`inline-block px-2 py-1 rounded text-xs font-medium ${getStatusBadgeColor(
+                      alert.statut
+                    )}`}
                   >
-                    {alert.status}
+                    {alert.statut}
                   </span>
-                  {alert.category && (
+                  {alert.categorie && (
                     <p className="text-xs text-gray-600">
-                      📁 {alert.category.title}
+                      📁 {alert.categorie.nom}
                     </p>
                   )}
                   <p className="text-xs text-gray-600">
-                    ⚡ Intensité: {alert.intensity}
+                    ⚡ Intensité: {alert.intensite}
                   </p>
                   <p className="text-xs text-gray-500 mt-2">
                     {alert.description.substring(0, 100)}
                     {alert.description.length > 100 ? "..." : ""}
                   </p>
                   <p className="text-xs text-gray-400 mt-2">
-                    {new Date(alert.created_at).toLocaleDateString()}
+                    {new Date(alert.dateCreation).toLocaleDateString()}
                   </p>
                 </div>
               </div>

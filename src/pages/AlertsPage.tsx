@@ -37,51 +37,53 @@ export default function AlertsPage() {
   const [participationText, setParticipationText] = useState("");
 
   const [formData, setFormData] = useState<{
-    title: string;
+    titre: string;
     description: string;
-    intensity: string;
-    location_lat: string;
-    location_lon: string;
-    id_category: string;
-    status: AlertStatus;
+    intensite: string;
+    latitude: string;
+    longitude: string;
+    categorieId: string;
+    statut: AlertStatus;
   }>({
-    title: "",
+    titre: "",
     description: "",
-    intensity: "",
-    location_lat: "",
-    location_lon: "",
-    id_category: "",
-    status: "ouverte",
+    intensite: "",
+    latitude: "",
+    longitude: "",
+    categorieId: "",
+    statut: "ouverte",
   });
 
-  const { data: alertsData, isLoading } = useGetAlerts(page, 20);
-  const { data: categories } = useGetCategories();
+  const alertsRequest = useGetAlerts(page, 20);
+  const categoriesRequest = useGetCategories();
   const createMutation = useCreateAlert();
   const updateMutation = useUpdateAlert();
   const deleteMutation = useDeleteAlert();
   const participateMutation = useCreateParticipation();
 
+  const categories = categoriesRequest.data?.data;
+
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       await createMutation.mutateAsync({
-        user_id: userId,
-        title: formData.title,
+        userId: userId,
+        titre: formData.titre,
         description: formData.description,
-        intensity: formData.intensity,
-        location_lat: parseFloat(formData.location_lat),
-        location_lon: parseFloat(formData.location_lon),
-        id_category: parseInt(formData.id_category),
-        status: formData.status,
+        intensite: formData.intensite,
+        latitude: parseFloat(formData.latitude),
+        longitude: parseFloat(formData.longitude),
+        categorieId: parseInt(formData.categorieId),
+        statut: formData.statut,
       });
       setFormData({
-        title: "",
+        titre: "",
         description: "",
-        intensity: "",
-        location_lat: "",
-        location_lon: "",
-        id_category: "",
-        status: "ouverte",
+        intensite: "",
+        latitude: "",
+        longitude: "",
+        categorieId: "",
+        statut: "ouverte",
       });
       setIsCreating(false);
       toast.success("Alerte créée avec succès !");
@@ -97,27 +99,27 @@ export default function AlertsPage() {
 
     try {
       await updateMutation.mutateAsync({
-        id: editingAlert.id_alert,
+        id: editingAlert.id,
         payload: {
-          user_id: editingAlert.user_id,
-          title: formData.title,
+          userId: editingAlert.userId,
+          titre: formData.titre,
           description: formData.description,
-          intensity: formData.intensity,
-          location_lat: parseFloat(formData.location_lat),
-          location_lon: parseFloat(formData.location_lon),
-          id_category: parseInt(formData.id_category),
-          status: formData.status,
+          intensite: formData.intensite,
+          latitude: parseFloat(formData.latitude),
+          longitude: parseFloat(formData.longitude),
+          categorieId: parseInt(formData.categorieId),
+          statut: formData.statut,
         },
       });
       setEditingAlert(null);
       setFormData({
-        title: "",
+        titre: "",
         description: "",
-        intensity: "",
-        location_lat: "",
-        location_lon: "",
-        id_category: "",
-        status: "ouverte",
+        intensite: "",
+        latitude: "",
+        longitude: "",
+        categorieId: "",
+        statut: "ouverte",
       });
       toast.success("Alerte mise à jour avec succès !");
     } catch (error) {
@@ -131,7 +133,7 @@ export default function AlertsPage() {
 
     try {
       await deleteMutation.mutateAsync({
-        id: alert.id_alert,
+        id: alert.id,
       });
       toast.success("Alerte supprimée avec succès !");
     } catch (error) {
@@ -145,13 +147,18 @@ export default function AlertsPage() {
 
     try {
       await participateMutation.mutateAsync({
-        user_id: userId,
-        response: participationText,
-        id_alert: selectedAlert.id_alert,
-        alert_user_id: selectedAlert.user_id,
+        message: participationText,
+        alerteId: selectedAlert.id,
+        nom: username,
       });
+
       setParticipationText("");
       toast.success("Participation ajoutée avec succès !");
+
+      await alertsRequest.refetch();
+      const refreshed = alertsRequest.data?.data ?? [];
+      const updated = refreshed.find((a: Alert) => a.id === selectedAlert.id);
+      if (updated) setSelectedAlert(updated);
     } catch (error) {
       console.error("Error creating participation:", error);
       toast.error("Erreur lors de l'ajout de la participation");
@@ -161,26 +168,26 @@ export default function AlertsPage() {
   const startEditing = (alert: Alert) => {
     setEditingAlert(alert);
     setFormData({
-      title: alert.title,
+      titre: alert.titre,
       description: alert.description,
-      intensity: alert.intensity,
-      location_lat: alert.location_lat.toString(),
-      location_lon: alert.location_lon.toString(),
-      id_category: alert.id_category.toString(),
-      status: alert.status,
+      intensite: alert.intensite,
+      latitude: alert.latitude.toString(),
+      longitude: alert.longitude.toString(),
+      categorieId: alert.categorieId.toString(),
+      statut: alert.statut,
     });
   };
 
   const cancelEditing = () => {
     setEditingAlert(null);
     setFormData({
-      title: "",
+      titre: "",
       description: "",
-      intensity: "",
-      location_lat: "",
-      location_lon: "",
-      id_category: "",
-      status: "ouverte",
+      intensite: "",
+      latitude: "",
+      longitude: "",
+      categorieId: "",
+      statut: "ouverte",
     });
   };
 
@@ -197,7 +204,7 @@ export default function AlertsPage() {
     }
   };
 
-  if (isLoading) {
+  if (alertsRequest.isLoading) {
     return (
       <div className="min-h-screen bg-slate-950 text-slate-100">
         <Header />
@@ -211,7 +218,7 @@ export default function AlertsPage() {
     );
   }
 
-  const alerts = alertsData?.items || [];
+  const alerts = alertsRequest.data?.data || [];
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100">
@@ -308,9 +315,9 @@ export default function AlertsPage() {
                     <input
                       type="text"
                       required
-                      value={formData.title}
+                      value={formData.titre}
                       onChange={(e) =>
-                        setFormData({ ...formData, title: e.target.value })
+                        setFormData({ ...formData, titre: e.target.value })
                       }
                       className="w-full px-4 py-2 rounded-lg bg-slate-900/50 border border-white/10 text-slate-100 placeholder-slate-500 focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
                       placeholder="Nid de poule sur la voirie"
@@ -324,7 +331,10 @@ export default function AlertsPage() {
                       required
                       value={formData.description}
                       onChange={(e) =>
-                        setFormData({ ...formData, description: e.target.value })
+                        setFormData({
+                          ...formData,
+                          description: e.target.value,
+                        })
                       }
                       rows={3}
                       className="w-full px-4 py-2 rounded-lg bg-slate-900/50 border border-white/10 text-slate-100 placeholder-slate-500 focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
@@ -337,16 +347,19 @@ export default function AlertsPage() {
                     </label>
                     <select
                       required
-                      value={formData.id_category}
+                      value={formData.categorieId}
                       onChange={(e) =>
-                        setFormData({ ...formData, id_category: e.target.value })
+                        setFormData({
+                          ...formData,
+                          categorieId: e.target.value,
+                        })
                       }
                       className="w-full px-4 py-2 rounded-lg bg-slate-900/50 border border-white/10 text-slate-100 focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
                     >
                       <option value="">Sélectionner...</option>
                       {categories?.map((cat) => (
-                        <option key={cat.id_category} value={cat.id_category}>
-                          {cat.title}
+                        <option key={cat.id} value={cat.id}>
+                          {cat.nom}
                         </option>
                       ))}
                     </select>
@@ -358,9 +371,9 @@ export default function AlertsPage() {
                     <input
                       type="text"
                       required
-                      value={formData.intensity}
+                      value={formData.intensite}
                       onChange={(e) =>
-                        setFormData({ ...formData, intensity: e.target.value })
+                        setFormData({ ...formData, intensite: e.target.value })
                       }
                       className="w-full px-4 py-2 rounded-lg bg-slate-900/50 border border-white/10 text-slate-100 placeholder-slate-500 focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
                       placeholder="Faible, Moyen, Élevé"
@@ -375,11 +388,11 @@ export default function AlertsPage() {
                         type="number"
                         step="any"
                         required
-                        value={formData.location_lat}
+                        value={formData.latitude}
                         onChange={(e) =>
                           setFormData({
                             ...formData,
-                            location_lat: e.target.value,
+                            latitude: e.target.value,
                           })
                         }
                         className="w-full px-4 py-2 rounded-lg bg-slate-900/50 border border-white/10 text-slate-100 placeholder-slate-500 focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
@@ -394,11 +407,11 @@ export default function AlertsPage() {
                         type="number"
                         step="any"
                         required
-                        value={formData.location_lon}
+                        value={formData.longitude}
                         onChange={(e) =>
                           setFormData({
                             ...formData,
-                            location_lon: e.target.value,
+                            longitude: e.target.value,
                           })
                         }
                         className="w-full px-4 py-2 rounded-lg bg-slate-900/50 border border-white/10 text-slate-100 placeholder-slate-500 focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
@@ -412,11 +425,14 @@ export default function AlertsPage() {
                         Statut
                       </label>
                       <select
-                        value={formData.status}
+                        value={formData.statut}
                         onChange={(e) =>
                           setFormData({
                             ...formData,
-                            status: e.target.value as "ouverte" | "en_cours" | "resolue",
+                            statut: e.target.value as
+                              | "ouverte"
+                              | "en_cours"
+                              | "resolue",
                           })
                         }
                         className="w-full px-4 py-2 rounded-lg bg-slate-900/50 border border-white/10 text-slate-100 focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
@@ -442,8 +458,8 @@ export default function AlertsPage() {
                           ? "Mise à jour..."
                           : "Mettre à jour"
                         : createMutation.isPending
-                          ? "Création..."
-                          : "Créer"}
+                        ? "Création..."
+                        : "Créer"}
                     </button>
                     <button
                       type="button"
@@ -454,13 +470,13 @@ export default function AlertsPage() {
                           setIsCreating(false);
                         }
                         setFormData({
-                          title: "",
+                          titre: "",
                           description: "",
-                          intensity: "",
-                          location_lat: "",
-                          location_lon: "",
-                          id_category: "",
-                          status: "ouverte",
+                          intensite: "",
+                          latitude: "",
+                          longitude: "",
+                          categorieId: "",
+                          statut: "ouverte",
                         });
                       }}
                       className="px-4 py-3 bg-slate-700/50 text-slate-300 rounded-lg hover:bg-slate-700 transition-all"
@@ -482,7 +498,7 @@ export default function AlertsPage() {
               <h2 className="text-2xl font-bold mb-4 flex items-center justify-between">
                 <span className="flex items-center gap-2">
                   <AlertTriangle className="w-6 h-6 text-cyan-400" />
-                  Liste des Alertes ({alertsData?.total_items || 0})
+                  Liste des Alertes ({alerts.length || 0})
                 </span>
               </h2>
 
@@ -500,36 +516,50 @@ export default function AlertsPage() {
                 ) : (
                   alerts.map((alert) => (
                     <div
-                      key={`${alert.id_alert}-${alert.user_id}`}
-                      className="bg-slate-900/30 rounded-lg p-4 border border-white/5 hover:border-cyan-500/30 transition-all"
+                      key={`${alert.id}-${alert.userId}`}
+                      onClick={() => setSelectedAlert(alert)}
+                      className={`bg-slate-900/30 rounded-lg p-4 border transition-all cursor-pointer ${
+                        selectedAlert?.id === alert.id
+                          ? "border-cyan-500/50 shadow-[0_0_0_2px_rgba(34,211,238,0.25)]"
+                          : "border-white/5 hover:border-cyan-500/30"
+                      }`}
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-2">
-                            <h3 className="font-semibold text-lg">{alert.title}</h3>
+                            <h3 className="font-semibold text-lg">
+                              {alert.titre}
+                            </h3>
                             <span
-                              className={`px-2 py-1 rounded text-xs font-medium ${getStatusBadgeColor(alert.status)}`}
+                              className={`px-2 py-1 rounded text-xs font-medium ${getStatusBadgeColor(
+                                alert.statut
+                              )}`}
                             >
-                              {alert.status}
+                              {alert.statut}
                             </span>
                           </div>
                           <p className="text-sm text-slate-400 mb-2">
                             {alert.description}
                           </p>
                           <div className="flex items-center gap-4 text-xs text-slate-500">
-                            {alert.category && (
-                              <span>📁 {alert.category.title}</span>
+                            {alert.categorie && (
+                              <span>📁 {alert.categorie.nom}</span>
                             )}
-                            <span>⚡ {alert.intensity}</span>
+                            <span>⚡ {alert.intensite}</span>
                             <span>
-                              📅 {new Date(alert.created_at).toLocaleDateString()}
+                              📅{" "}
+                              {new Date(
+                                alert.dateCreation
+                              ).toLocaleDateString()}
                             </span>
-                            {alert.participation && (
-                              <span>💬 {alert.participation.length} participations</span>
+                            {alert.participations && (
+                              <span>
+                                💬 {alert.participations.length} participations
+                              </span>
                             )}
                           </div>
                         </div>
-                        {alert.user_id === userId && (
+                        {alert.userId === userId && (
                           <div className="flex gap-2">
                             <button
                               onClick={() => startEditing(alert)}
@@ -547,17 +577,59 @@ export default function AlertsPage() {
                           </div>
                         )}
                       </div>
-                      {selectedAlert?.id_alert === alert.id_alert && (
+                      {selectedAlert?.id === alert.id && (
                         <div className="mt-4 pt-4 border-t border-white/10">
-                          <h4 className="text-sm font-semibold mb-2 flex items-center gap-2">
+                          <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
                             <MessageCircle className="w-4 h-4 text-cyan-400" />
-                            Participer
+                            Participations
                           </h4>
+
+                          {/* Liste des participations */}
+                          <div className="space-y-3 mb-3">
+                            {Array.isArray(selectedAlert.participations) &&
+                            selectedAlert.participations.length > 0 ? (
+                              [...selectedAlert.participations]
+                                .sort(
+                                  (a, b) =>
+                                    new Date(b.dateParticipation).getTime() -
+                                    new Date(a.dateParticipation).getTime()
+                                )
+                                .map((p) => (
+                                  <div
+                                    key={p.id}
+                                    className="rounded-lg bg-slate-900/60 border border-white/10 p-3"
+                                  >
+                                    <div className="flex items-center justify-between mb-1">
+                                      <span className="text-sm font-medium text-slate-200">
+                                        {p.nom}
+                                      </span>
+                                      <span className="text-[11px] text-slate-500">
+                                        {new Date(
+                                          p.dateParticipation
+                                        ).toLocaleString()}
+                                      </span>
+                                    </div>
+                                    <p className="text-sm text-slate-300">
+                                      {p.message}
+                                    </p>
+                                  </div>
+                                ))
+                            ) : (
+                              <p className="text-sm text-slate-500">
+                                Aucune participation pour le moment.
+                              </p>
+                            )}
+                          </div>
+
+                          {/* Champ pour ajouter une participation */}
+                          <h5 className="sr-only">Ajouter une participation</h5>
                           <div className="flex gap-2">
                             <input
                               type="text"
                               value={participationText}
-                              onChange={(e) => setParticipationText(e.target.value)}
+                              onChange={(e) =>
+                                setParticipationText(e.target.value)
+                              }
                               placeholder="Votre message..."
                               className="flex-1 px-3 py-2 text-sm rounded-lg bg-slate-900/50 border border-white/10 text-slate-100 placeholder-slate-500 focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
                             />
@@ -577,7 +649,7 @@ export default function AlertsPage() {
               </div>
 
               {/* Pagination */}
-              {alertsData && alertsData.total_pages > 1 && (
+              {/* {alertsData && alertsData.total_pages > 1 && (
                 <div className="flex justify-center gap-2 mt-6">
                   <button
                     onClick={() => setPage((p) => Math.max(1, p - 1))}
@@ -599,7 +671,7 @@ export default function AlertsPage() {
                     Suivant
                   </button>
                 </div>
-              )}
+              )} */}
             </motion.div>
           </div>
         </Container>

@@ -1,6 +1,11 @@
 export interface Category {
-  id_category: number;
-  title: string;
+  id: number;
+  nom: string;
+  description: string;
+}
+
+export interface Categories {
+  data: Category[];
 }
 
 export interface CategoryInput {
@@ -24,48 +29,46 @@ export interface MediaInput {
 }
 
 export interface Participation {
-  id_participation: number;
-  user_id: number;
-  response: string;
-  date_response: string;
-  id_alert: number;
-  alert_user_id: number;
+  id: number;
+  nom: string;
+  message: string;
+  dateParticipation: string;
+  alerteId: number;
 }
 
 export interface ParticipationInput {
-  user_id: number;
-  response?: string;
-  id_alert: number;
-  alert_user_id: number;
+  nom: string;
+  message: string;
+  alerteId: number;
 }
 
 export type AlertStatus = "ouverte" | "en_cours" | "resolue";
 
 export interface Alert {
-  id_alert: number;
-  user_id: number;
-  title: string;
+  id: number;
+  userId: number;
+  titre: string;
   description: string;
-  status: AlertStatus;
-  intensity: string;
-  created_at: string;
-  location_lat: number;
-  location_lon: number;
-  id_category: number;
-  category?: Category;
-  media?: Media[];
-  participation?: Participation[];
+  statut: AlertStatus;
+  intensite: string;
+  dateCreation: string;
+  latitude: number;
+  longitude: number;
+  categorieId: number;
+  categorie?: Category;
+  medias?: Media[];
+  participations?: Participation[];
 }
 
 export interface AlertInput {
-  user_id: number;
-  title: string;
+  userId: number;
+  titre: string;
   description: string;
-  status?: AlertStatus;
-  intensity: string;
-  location_lat: number;
-  location_lon: number;
-  id_category: number;
+  statut?: AlertStatus;
+  intensite: string;
+  latitude: number;
+  longitude: number;
+  categorieId: number;
 }
 
 export interface AlertPage {
@@ -80,4 +83,8 @@ export interface AlertsError {
   error: string;
   message: string;
   details?: string[];
+}
+
+export interface Alerts {
+  data: Alert[];
 }

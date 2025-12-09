@@ -1,10 +1,11 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { jsonApi } from "../jsonApi";
 import type {
   Alert,
   AlertInput,
-  AlertPage,
+  Alerts,
   AlertsError,
+  Categories,
   Category,
   CategoryInput,
   Media,
@@ -13,6 +14,7 @@ import type {
   ParticipationInput,
 } from "./alerts.types";
 import { useStore } from "../../store/store";
+import { queryClient } from "../client";
 
 const AUTH_SERVICE_URL: string = import.meta.env.VITE_AUTH_SERVICE_URL;
 const alertsEndpoint = AUTH_SERVICE_URL + "/api/alertes_citoyennes";
@@ -25,7 +27,7 @@ export function getAlerts({
   page?: number;
   limit?: number;
   bearerToken: string;
-}): Promise<AlertPage> {
+}): Promise<Alerts> {
   return jsonApi.get({
     url: `${alertsEndpoint}/alerts?page=${page}&limit=${limit}`,
     bearerToken,
@@ -35,7 +37,7 @@ export function getAlerts({
 export function useGetAlerts(page = 1, limit = 20) {
   const accessToken = useStore((state) => state.accessToken);
 
-  return useQuery<AlertPage, AlertsError>({
+  return useQuery<Alerts, AlertsError>({
     queryKey: ["alerts", page, limit],
     queryFn: () => getAlerts({ page, limit, bearerToken: accessToken }),
     enabled: !!accessToken,
@@ -81,10 +83,10 @@ export function createAlert({
 
 export function useCreateAlert() {
   const accessToken = useStore((state) => state.accessToken);
-  const queryClient = useQueryClient();
 
   return useMutation<Alert, AlertsError, AlertInput>({
-    mutationFn: (payload: AlertInput) => createAlert({ payload, bearerToken: accessToken }),
+    mutationFn: (payload: AlertInput) =>
+      createAlert({ payload, bearerToken: accessToken }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["alerts"] });
     },
@@ -109,13 +111,8 @@ export function updateAlert({
 
 export function useUpdateAlert() {
   const accessToken = useStore((state) => state.accessToken);
-  const queryClient = useQueryClient();
 
-  return useMutation<
-    Alert,
-    AlertsError,
-    { id: number; payload: AlertInput }
-  >({
+  return useMutation<Alert, AlertsError, { id: number; payload: AlertInput }>({
     mutationFn: ({ id, payload }) =>
       updateAlert({ id, payload, bearerToken: accessToken }),
     onSuccess: (_, variables) => {
@@ -126,6 +123,8 @@ export function useUpdateAlert() {
     },
   });
 }
+
+// STOPPED HERE
 
 export function deleteAlert({
   id,
@@ -142,7 +141,6 @@ export function deleteAlert({
 
 export function useDeleteAlert() {
   const accessToken = useStore((state) => state.accessToken);
-  const queryClient = useQueryClient();
 
   return useMutation<void, AlertsError, { id: number }>({
     mutationFn: ({ id }) => deleteAlert({ id, bearerToken: accessToken }),
@@ -152,7 +150,7 @@ export function useDeleteAlert() {
   });
 }
 
-export function getCategories(bearerToken: string): Promise<Category[]> {
+export function getCategories(bearerToken: string): Promise<Categories> {
   return jsonApi.get({
     url: `${alertsEndpoint}/categories`,
     bearerToken,
@@ -162,7 +160,7 @@ export function getCategories(bearerToken: string): Promise<Category[]> {
 export function useGetCategories() {
   const accessToken = useStore((state) => state.accessToken);
 
-  return useQuery<Category[], AlertsError>({
+  return useQuery<Categories, AlertsError>({
     queryKey: ["categories"],
     queryFn: () => getCategories(accessToken),
     enabled: !!accessToken,
@@ -185,10 +183,10 @@ export function createCategory({
 
 export function useCreateCategory() {
   const accessToken = useStore((state) => state.accessToken);
-  const queryClient = useQueryClient();
 
   return useMutation<Category, AlertsError, CategoryInput>({
-    mutationFn: (payload: CategoryInput) => createCategory({ payload, bearerToken: accessToken }),
+    mutationFn: (payload: CategoryInput) =>
+      createCategory({ payload, bearerToken: accessToken }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["categories"] });
     },
@@ -228,10 +226,10 @@ export function createMedia({
 
 export function useCreateMedia() {
   const accessToken = useStore((state) => state.accessToken);
-  const queryClient = useQueryClient();
 
   return useMutation<Media, AlertsError, MediaInput>({
-    mutationFn: (payload: MediaInput) => createMedia({ payload, bearerToken: accessToken }),
+    mutationFn: (payload: MediaInput) =>
+      createMedia({ payload, bearerToken: accessToken }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["medias"] });
     },
@@ -253,7 +251,6 @@ export function deleteMedia({
 
 export function useDeleteMedia() {
   const accessToken = useStore((state) => state.accessToken);
-  const queryClient = useQueryClient();
 
   return useMutation<void, AlertsError, number>({
     mutationFn: (id: number) => deleteMedia({ id, bearerToken: accessToken }),
@@ -263,7 +260,9 @@ export function useDeleteMedia() {
   });
 }
 
-export function getParticipations(bearerToken: string): Promise<Participation[]> {
+export function getParticipations(
+  bearerToken: string
+): Promise<Participation[]> {
   return jsonApi.get({
     url: `${alertsEndpoint}/participations`,
     bearerToken,
@@ -296,7 +295,6 @@ export function createParticipation({
 
 export function useCreateParticipation() {
   const accessToken = useStore((state) => state.accessToken);
-  const queryClient = useQueryClient();
 
   return useMutation<Participation, AlertsError, ParticipationInput>({
     mutationFn: (payload: ParticipationInput) =>
@@ -323,7 +321,6 @@ export function deleteParticipation({
 
 export function useDeleteParticipation() {
   const accessToken = useStore((state) => state.accessToken);
-  const queryClient = useQueryClient();
 
   return useMutation<void, AlertsError, number>({
     mutationFn: (id: number) =>

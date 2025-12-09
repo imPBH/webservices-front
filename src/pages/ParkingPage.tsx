@@ -37,8 +37,6 @@ export default function ParkingPage() {
   const currentParking = currentParkingRequest.data?.data.parking;
   const parkingHistory = parkingHistoryRequest.data?.data.parkings;
 
-  console.log(parkingHistory);
-
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
