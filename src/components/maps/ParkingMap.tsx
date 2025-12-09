@@ -55,9 +55,13 @@ export default function ParkingMap({
           >
             <Popup>
               <div className="p-2">
-                <h3 className="font-bold text-sm mb-1">Parking #{parking.id}</h3>
+                <h3 className="font-bold text-sm mb-1">
+                  Parking #{parking.id}
+                </h3>
                 {parking.address && (
-                  <p className="text-xs text-gray-600 mb-1">{parking.address}</p>
+                  <p className="text-xs text-gray-600 mb-1">
+                    {parking.address}
+                  </p>
                 )}
                 {parking.note && (
                   <p className="text-xs text-gray-500 italic">{parking.note}</p>

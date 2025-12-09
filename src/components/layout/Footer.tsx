@@ -1,5 +1,6 @@
 import { Building2 } from "lucide-react";
 import { Container } from "../ui/Container";
+import { NavLink } from "react-router";
 
 export function Footer() {
   return (
@@ -14,15 +15,15 @@ export function Footer() {
           </span>
         </div>
         <div className="flex items-center gap-6 text-sm text-slate-400">
-          <a href="#" className="hover:text-white">
+          <NavLink to="#" className="hover:text-white">
             Sécurité
-          </a>
-          <a href="#" className="hover:text-white">
+          </NavLink>
+          <NavLink to="#" className="hover:text-white">
             Confidentialité
-          </a>
-          <a href="#" className="hover:text-white">
+          </NavLink>
+          <NavLink to="#" className="hover:text-white">
             Contact
-          </a>
+          </NavLink>
         </div>
       </Container>
     </footer>

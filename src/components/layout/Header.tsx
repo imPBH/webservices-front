@@ -5,7 +5,7 @@ import { useStore } from "../../store/store";
 import { useLogout } from "../../api/auth/auth";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useNavigate } from "react-router";
+import { NavLink, useNavigate } from "react-router";
 
 export function Header() {
   const loggedIn = useStore((s) => s.isLoggedIn);
@@ -25,56 +25,59 @@ export function Header() {
     <header className="sticky top-0 z-40 border-b border-white/5 bg-slate-950/60 backdrop-blur">
       <Container className="flex h-16 items-center justify-between">
         {/* Logo */}
-        <a href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+        <NavLink
+          to="/"
+          className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+        >
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-400 to-sky-500 shadow-lg shadow-cyan-500/20">
             <Building2 className="h-5 w-5 text-slate-950" />
           </div>
           <span className="text-lg font-semibold tracking-tight">
             Ville Connectée
           </span>
-        </a>
+        </NavLink>
 
         {/* Desktop Navigation */}
         <nav className="hidden items-center gap-6 md:flex">
           {NAV_LINKS.map((l) => (
-            <a
+            <NavLink
               key={l.href}
-              href={l.href}
+              to={l.href}
               className="text-sm text-slate-300 hover:text-white transition-colors"
             >
               {l.label}
-            </a>
+            </NavLink>
           ))}
 
           {!loggedIn ? (
             <>
-              <a
-                href="/login"
+              <NavLink
+                to="/login"
                 className="text-sm text-slate-300 hover:text-white transition-colors"
               >
                 Se connecter
-              </a>
-              <a
-                href="/register"
+              </NavLink>
+              <NavLink
+                to="/register"
                 className="px-4 py-2 text-sm bg-gradient-to-br from-cyan-400 to-sky-500 text-slate-950 font-semibold rounded-lg hover:shadow-lg hover:shadow-cyan-500/30 transition-all"
               >
                 Créer un compte
-              </a>
+              </NavLink>
             </>
           ) : (
             <>
-              <a
-                href="/parking"
+              <NavLink
+                to="/parking"
                 className="text-sm text-slate-300 hover:text-white transition-colors"
               >
                 Parking
-              </a>
-              <a
-                href="/alerts"
+              </NavLink>
+              <NavLink
+                to="/alerts"
                 className="text-sm text-slate-300 hover:text-white transition-colors"
               >
                 Alertes
-              </a>
+              </NavLink>
 
               {/* User Menu */}
               <div className="relative">
@@ -116,14 +119,14 @@ export function Header() {
                           </p>
                         </div>
                         <div className="p-1">
-                          <a
-                            href="/profile"
+                          <NavLink
+                            to="/profile"
                             onClick={() => setIsMenuOpen(false)}
                             className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-slate-300 hover:bg-white/10 hover:text-white transition-colors"
                           >
                             <User className="h-4 w-4" />
                             Mon profil
-                          </a>
+                          </NavLink>
                           <button
                             onClick={handleLogout}
                             className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors"
@@ -165,32 +168,32 @@ export function Header() {
           >
             <Container className="py-4 space-y-3">
               {NAV_LINKS.map((l) => (
-                <a
+                <NavLink
                   key={l.href}
-                  href={l.href}
+                  to={l.href}
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="block px-3 py-2 text-sm text-slate-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
                 >
                   {l.label}
-                </a>
+                </NavLink>
               ))}
 
               {!loggedIn ? (
                 <>
-                  <a
-                    href="/login"
+                  <NavLink
+                    to="/login"
                     onClick={() => setIsMobileMenuOpen(false)}
                     className="block px-3 py-2 text-sm text-slate-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
                   >
                     Se connecter
-                  </a>
-                  <a
-                    href="/register"
+                  </NavLink>
+                  <NavLink
+                    to="/register"
                     onClick={() => setIsMobileMenuOpen(false)}
                     className="block px-3 py-2 text-sm bg-gradient-to-br from-cyan-400 to-sky-500 text-slate-950 font-semibold rounded-lg hover:shadow-lg hover:shadow-cyan-500/30 transition-all text-center"
                   >
                     Créer un compte
-                  </a>
+                  </NavLink>
                 </>
               ) : (
                 <>
@@ -202,28 +205,28 @@ export function Header() {
                       Compte personnel
                     </p>
                   </div>
-                  <a
-                    href="/parking"
+                  <NavLink
+                    to="/parking"
                     onClick={() => setIsMobileMenuOpen(false)}
                     className="block px-3 py-2 text-sm text-slate-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
                   >
                     Parking
-                  </a>
-                  <a
-                    href="/alerts"
+                  </NavLink>
+                  <NavLink
+                    to="/alerts"
                     onClick={() => setIsMobileMenuOpen(false)}
                     className="block px-3 py-2 text-sm text-slate-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
                   >
                     Alertes
-                  </a>
-                  <a
-                    href="/profile"
+                  </NavLink>
+                  <NavLink
+                    to="/profile"
                     onClick={() => setIsMobileMenuOpen(false)}
                     className="flex items-center gap-3 px-3 py-2 text-sm text-slate-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
                   >
                     <User className="h-4 w-4" />
                     Mon profil
-                  </a>
+                  </NavLink>
                   <button
                     onClick={() => {
                       handleLogout();
