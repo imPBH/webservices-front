@@ -34,8 +34,12 @@ export default function ParkingPage() {
   const updateMutation = useUpdateParking();
   const deleteMutation = useDeleteParking();
 
-  const currentParking = currentParkingRequest.data?.data.parking;
-  const parkingHistory = parkingHistoryRequest.data?.data.parkings;
+  const currentParking = currentParkingRequest.isSuccess
+    ? currentParkingRequest.data?.data.parking
+    : null;
+  const parkingHistory = parkingHistoryRequest.isSuccess
+    ? parkingHistoryRequest.data?.data.parkings
+    : [];
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
