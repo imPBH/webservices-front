@@ -30,7 +30,7 @@ export default function AlertsPage() {
   const userId = useStore((state) => state.userId);
   const toast = useToastContext();
 
-  const [page, setPage] = useState(1);
+  const [page] = useState(1);
   const [isCreating, setIsCreating] = useState(false);
   const [editingAlert, setEditingAlert] = useState<Alert | null>(null);
   const [selectedAlert, setSelectedAlert] = useState<Alert | null>(null);
