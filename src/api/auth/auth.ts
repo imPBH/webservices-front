@@ -36,6 +36,7 @@ export function useLogin() {
   const setLoggedIn = useStore((state) => state.setLoggedIn);
   const setAccessToken = useStore((state) => state.setAccessToken);
   const setRefreshToken = useStore((state) => state.setRefreshToken);
+  const setUserId = useStore((state) => state.setUserId);
   const setUsername = useStore((state) => state.setUsername);
   const setEmail = useStore((state) => state.setEmail);
   const setRole = useStore((state) => state.setRole);
@@ -45,6 +46,7 @@ export function useLogin() {
       setLoggedIn(true);
       setAccessToken(data.token.accessToken);
       setRefreshToken(data.token.refreshToken);
+      setUserId(data.token.user.id);
       setUsername(data.token.user.username);
       setEmail(data.token.user.email);
       setRole(data.token.user.role);
@@ -61,6 +63,7 @@ export function useLogout() {
   const setLoggedIn = useStore((state) => state.setLoggedIn);
   const setAccessToken = useStore((state) => state.setAccessToken);
   const setRefreshToken = useStore((state) => state.setRefreshToken);
+  const setUserId = useStore((state) => state.setUserId);
   const setUsername = useStore((state) => state.setUsername);
   const setEmail = useStore((state) => state.setEmail);
   const setRole = useStore((state) => state.setRole);
@@ -70,6 +73,7 @@ export function useLogout() {
       setLoggedIn(false);
       setAccessToken("");
       setRefreshToken("");
+      setUserId(NaN);
       setUsername("");
       setEmail("");
       setRole(NaN);
@@ -119,9 +123,18 @@ export function update({
 
 export function useUpdateUser() {
   const accessToken = useStore((state) => state.accessToken);
+  const setUserId = useStore((state) => state.setUserId);
+  const setUsername = useStore((state) => state.setUsername);
+  const setEmail = useStore((state) => state.setEmail);
+
   return useMutation({
     mutationFn: (userData: UpdateData) =>
       update({ bearerToken: accessToken, userData }),
+    onSuccess(data) {
+      setUserId(data.user.id);
+      setUsername(data.user.username);
+      setEmail(data.user.email);
+    },
   });
 }
 
@@ -134,12 +147,20 @@ export function useDeleteUser() {
   const setLoggedIn = useStore((state) => state.setLoggedIn);
   const setAccessToken = useStore((state) => state.setAccessToken);
   const setRefreshToken = useStore((state) => state.setRefreshToken);
+  const setUserId = useStore((state) => state.setUserId);
+  const setUsername = useStore((state) => state.setUsername);
+  const setEmail = useStore((state) => state.setEmail);
+  const setRole = useStore((state) => state.setRole);
   return useMutation({
     mutationFn: () => deleteUser(accessToken),
     onSuccess() {
       setLoggedIn(false);
       setAccessToken("");
       setRefreshToken("");
+      setUserId(NaN);
+      setUsername("");
+      setEmail("");
+      setRole(NaN);
     },
   });
 }
@@ -154,5 +175,11 @@ export function resetPassword(email: string): Promise<ResetPasswordResponse> {
 export function useResetPassword() {
   return useMutation({
     mutationFn: (email: string) => resetPassword(email),
+  });
+}
+
+export function getGoogleRedirect(): Promise<{ url: string }> {
+  return jsonApi.get({
+    url: `${authEndpoint}/google/redirect`,
   });
 }

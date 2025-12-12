@@ -2,9 +2,9 @@ import { BellRing, Car, Salad, UtensilsCrossed } from "lucide-react";
 import type { FAQItem, Feature, UseCase } from "../types";
 
 export const NAV_LINKS = [
-  { href: "#features", label: "Fonctionnalités" },
-  { href: "#cases", label: "Cas d'usage" },
-  { href: "#faq", label: "FAQ" },
+  { href: "/#features", label: "Fonctionnalités" },
+  { href: "/#cases", label: "Cas d'usage" },
+  { href: "/#faq", label: "FAQ" },
 ] as const;
 
 export const FEATURES: Feature[] = [
