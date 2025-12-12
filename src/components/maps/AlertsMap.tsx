@@ -1,0 +1,131 @@
+import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import L from "leaflet";
+import type { Alert } from "../../api/alerts/alerts.types";
+import "leaflet/dist/leaflet.css";
+
+import icon from "leaflet/dist/images/marker-icon.png";
+import iconShadow from "leaflet/dist/images/marker-shadow.png";
+
+const createCustomIcon = (status: string) => {
+  let color = "#3b82f6";
+
+  if (status === "ouverte") {
+    color = "#ef4444";
+  } else if (status === "en_cours") {
+    color = "#f59e0b";
+  } else if (status === "resolue") {
+    color = "#10b981";
+  }
+
+  const svgIcon = `
+    <svg width="25" height="41" viewBox="0 0 25 41" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12.5 0C5.596 0 0 5.596 0 12.5c0 9.375 12.5 28.5 12.5 28.5S25 21.875 25 12.5C25 5.596 19.404 0 12.5 0z"
+            fill="${color}" stroke="#000" stroke-width="1"/>
+      <circle cx="12.5" cy="12.5" r="5" fill="#fff"/>
+    </svg>
+  `;
+
+  return L.divIcon({
+    html: svgIcon,
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [0, -41],
+    className: "",
+  });
+};
+
+const DefaultIcon = L.icon({
+  iconUrl: icon,
+  shadowUrl: iconShadow,
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+});
+
+L.Marker.prototype.options.icon = DefaultIcon;
+
+interface AlertsMapProps {
+  alerts: Alert[];
+  center?: [number, number];
+  zoom?: number;
+  onMarkerClick?: (alert: Alert) => void;
+}
+
+export default function AlertsMap({
+  alerts,
+  center = [48.8566, 2.3522],
+  zoom = 12,
+  onMarkerClick,
+}: AlertsMapProps) {
+  const mapCenter = alerts
+    ? ([alerts[0].latitude, alerts[0].longitude] as [number, number])
+    : center;
+
+  const getStatusBadgeColor = (status: string) => {
+    switch (status) {
+      case "ouverte":
+        return "bg-red-100 text-red-800";
+      case "en_cours":
+        return "bg-orange-100 text-orange-800";
+      case "resolue":
+        return "bg-green-100 text-green-800";
+      default:
+        return "bg-gray-100 text-gray-800";
+    }
+  };
+
+  return (
+    <div className="h-full w-full rounded-lg overflow-hidden">
+      <MapContainer
+        center={mapCenter}
+        zoom={zoom}
+        className="h-full w-full"
+        scrollWheelZoom={true}
+      >
+        <TileLayer
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
+        {alerts.map((alert) => (
+          <Marker
+            key={`${alert.id}-${alert.userId}`}
+            position={[alert.latitude, alert.longitude]}
+            icon={createCustomIcon(alert.statut)}
+            eventHandlers={{
+              click: () => onMarkerClick?.(alert),
+            }}
+          >
+            <Popup>
+              <div className="p-2 min-w-[200px]">
+                <h3 className="font-bold text-sm mb-2">{alert.titre}</h3>
+                <div className="space-y-1">
+                  <span
+                    className={`inline-block px-2 py-1 rounded text-xs font-medium ${getStatusBadgeColor(
+                      alert.statut
+                    )}`}
+                  >
+                    {alert.statut}
+                  </span>
+                  {alert.categorie && (
+                    <p className="text-xs text-gray-600">
+                      📁 {alert.categorie.nom}
+                    </p>
+                  )}
+                  <p className="text-xs text-gray-600">
+                    ⚡ Intensité: {alert.intensite}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-2">
+                    {alert.description.substring(0, 100)}
+                    {alert.description.length > 100 ? "..." : ""}
+                  </p>
+                  <p className="text-xs text-gray-400 mt-2">
+                    {new Date(alert.dateCreation).toLocaleDateString()}
+                  </p>
+                </div>
+              </div>
+            </Popup>
+          </Marker>
+        ))}
+      </MapContainer>
+    </div>
+  );
+}
