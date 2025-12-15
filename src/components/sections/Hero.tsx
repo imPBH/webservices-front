@@ -4,6 +4,7 @@ import { Container } from "../ui/Container";
 import { Badge } from "../ui/Badge";
 import { STATS } from "../../data/site";
 import { Stat } from "../ui/Stat";
+import { NavLink } from "react-router";
 
 export function Hero() {
   return (
@@ -30,12 +31,12 @@ export function Hero() {
               rapides, impact mesurable.
             </p>
             <div className="flex flex-wrap gap-3 mt-10 mb-10">
-              <a
-                href="#features"
+              <NavLink
+                to="/#features"
                 className="inline-flex items-center justify-center rounded-xl border border-white/10 px-5 py-3 text-sm font-semibold text-white/90 hover:bg-white/5"
               >
                 Voir les fonctionnalités
-              </a>
+              </NavLink>
             </div>
             <div className="flex items-center gap-6 pt-2 text-sm text-slate-400">
               <div className="flex items-center gap-2">

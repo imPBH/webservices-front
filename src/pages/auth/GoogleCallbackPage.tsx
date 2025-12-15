@@ -13,6 +13,7 @@ export default function GoogleCallbackPage() {
   const setLoggedIn = useStore((state) => state.setLoggedIn);
   const setAccessToken = useStore((state) => state.setAccessToken);
   const setRefreshToken = useStore((state) => state.setRefreshToken);
+  const setUserId = useStore((state) => state.setUserId);
   const setUsername = useStore((state) => state.setUsername);
   const setEmail = useStore((state) => state.setEmail);
   const setRole = useStore((state) => state.setRole);
@@ -50,6 +51,7 @@ export default function GoogleCallbackPage() {
 
         setAccessToken(data.token.accessToken);
         setRefreshToken(data.token.refreshToken);
+        setUserId(data.token.user.id);
         setUsername(data.token.user.username);
         setEmail(data.token.user.email);
         setRole(data.token.user.role);
@@ -70,6 +72,7 @@ export default function GoogleCallbackPage() {
     setLoggedIn,
     setRefreshToken,
     setRole,
+    setUserId,
     setUsername,
   ]);
 
